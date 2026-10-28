@@ -47,12 +47,13 @@ fn openapi_publication_policy_holds() {
     for path in paths.keys() {
         // A path is "standard-surface" if it is not a bank8-owned
         // route (those start /v1/ or /openapi).
-        let standard_surface =
-            !(path.starts_with("/v1/") || path.starts_with("/openapi"));
+        let standard_surface = !(path.starts_with("/v1/") || path.starts_with("/openapi"));
         if standard_surface {
             assert!(
-                path.starts_with(OB_PREFIX) && (path.contains("/aisp/")
-                    || path.contains("/pisp/") || path.contains("/cbpii/")),
+                path.starts_with(OB_PREFIX)
+                    && (path.contains("/aisp/")
+                        || path.contains("/pisp/")
+                        || path.contains("/cbpii/")),
                 "standard-surface path {path} must conform to \
 /open-banking/v{{maj}}.{{min}}/{{role}}/... (from \
 BANK8_OPEN_UK_VERSION)"

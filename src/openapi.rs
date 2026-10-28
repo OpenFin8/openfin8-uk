@@ -22,7 +22,10 @@ use utoipa::OpenApi;
 
 /// The OBL MIT Open Licence notice that MUST accompany any copied
 /// Open Banking Standard material (spec paths derived from the R/W
-/// API). Rendered into the published spec's info block.
+/// API). Rendered into the published spec's info block - wired into
+/// the utoipa description when the OB paths land (OBARCH-5); the
+/// drift guard tests against the marker string.
+#[allow(dead_code)]
 pub const OBL_OPEN_LICENCE_NOTICE: &str = "The Open Banking Standard \
 is subject to the Open Banking Limited MIT Open Licence \
 (https://www.openbanking.org.uk/open-licence). Copyright Open \
@@ -40,14 +43,11 @@ published by Open Banking Limited under the MIT Open Licence \
 (https://www.openbanking.org.uk/open-licence); portions of the \
 Read/Write API surface included here are used under that licence \
 with the OBL copyright notice preserved.",
-        license(
-            name = "MIT OR Apache-2.0",
-            identifier = "MIT OR Apache-2.0"
-        ),
+        license(name = "MIT OR Apache-2.0", identifier = "MIT OR Apache-2.0"),
         version = "0.1.0"
     ),
     paths(),
     components(schemas()),
-    security(),
+    security()
 )]
 pub struct UkOpenApi;

@@ -46,9 +46,7 @@ async fn main() -> anyhow::Result<()> {
 /// migrations, the staged-intent expiry schedule) lands with the
 /// OBARCH-1 extraction; the shape follows the `bank8-open-us`
 /// registration (per-jurisdiction identity).
-fn print_registration_stub(
-    section: Option<String>,
-) -> anyhow::Result<()> {
+fn print_registration_stub(section: Option<String>) -> anyhow::Result<()> {
     // Placeholder until the registration module lands (OBARCH-5).
     let _ = section;
     Ok(())
