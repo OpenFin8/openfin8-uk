@@ -677,64 +677,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bank8-open-core"
-version = "0.1.0"
-source = "git+https://github.com/Bank8-dev/bank8-open-core?tag=bank8-v0.1.0#d29682307ee161cee04e8f524b251e8a60e278d7"
-dependencies = [
- "anyhow",
- "async-trait",
- "axum",
- "bank8",
- "chrono",
- "jsonwebtoken",
- "reqwest 0.12.28",
- "sentin8",
- "serde",
- "serde_json",
- "sha2 0.10.9",
- "sqlx",
- "thiserror 1.0.69",
- "tokio",
- "tower",
- "tower-http 0.7.1",
- "tracing",
- "utoipa",
- "uuid",
-]
-
-[[package]]
-name = "bank8-open-uk"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "bank8",
- "bank8-open-core",
- "chrono",
- "dotenvy",
- "futures-util",
- "hyper",
- "jsonwebtoken",
- "reqwest 0.12.28",
- "rustls",
- "rustls-graviola",
- "sentin8",
- "sentin8-secrets-sdk",
- "serde",
- "serde_json",
- "sha2 0.10.9",
- "sqlx",
- "thiserror 1.0.69",
- "tokio",
- "tower",
- "tower-http 0.7.1",
- "tracing",
- "tracing-subscriber",
- "utoipa",
- "uuid",
-]
-
-[[package]]
 name = "bank8-payments-contracts"
 version = "0.1.0"
 source = "git+https://github.com/Bank8-dev/bank8-sdk?tag=bank8-v0.5.8#0088c2cba7d7ee43e25a33165e6fee13a15a411e"
@@ -2994,6 +2936,69 @@ name = "opaque-debug"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08d65885ee38876c4f86fa503fb49d7b507c2b62552df7c70b2fce627e06381"
+
+[[package]]
+name = "openfin8-core"
+version = "0.1.0"
+source = "git+https://github.com/OpenFin8/openfin8-core?tag=openfin8-v0.1.0#d2435c3a491156b475c4bc2f4dc71ab3aff299ea"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum",
+ "bank8",
+ "chrono",
+ "dotenvy",
+ "futures-util",
+ "hyper",
+ "jsonwebtoken",
+ "reqwest 0.12.28",
+ "sentin8",
+ "sentin8-secrets-sdk",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "sqlx",
+ "thiserror 1.0.69",
+ "tokio",
+ "tower",
+ "tower-http 0.7.1",
+ "tracing",
+ "tracing-subscriber",
+ "utoipa",
+ "uuid",
+]
+
+[[package]]
+name = "openfin8-uk"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bank8",
+ "chrono",
+ "dotenvy",
+ "futures-util",
+ "hyper",
+ "jsonwebtoken",
+ "openfin8-core",
+ "reqwest 0.12.28",
+ "rustls",
+ "rustls-graviola",
+ "sentin8",
+ "sentin8-secrets-sdk",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "sqlx",
+ "thiserror 1.0.69",
+ "tokio",
+ "tower",
+ "tower-http 0.7.1",
+ "tracing",
+ "tracing-subscriber",
+ "utoipa",
+ "uuid",
+]
 
 [[package]]
 name = "openssl-probe"

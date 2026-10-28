@@ -1,4 +1,4 @@
-# Bank8:OpenUK - README
+# OpenFin8:UK - README
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Built with Rust](https://img.shields.io/badge/Built%20with%20Rust-orange.svg)](https://www.rust-lang.org/)
@@ -14,7 +14,7 @@ confirmation of funds over
 
 ## Summary
 
-Bank8:OpenUK is a Rust service that plays the **ASPSP** role for
+OpenFin8:UK is a Rust service that plays the **ASPSP** role for
 the UK market: it stages consent resources (account-access,
 domestic-payment, VRP, funds-confirmation consents) for TPPs over
 the OBL Read/Write API, runs the PSU authorization ceremony through
@@ -25,7 +25,7 @@ funds for CBPIIs - honoring the OBL wire contract exactly
 (`{Data, Links, Meta}` envelopes, 400-vs-404 semantics,
 `x-idempotency-key`, detached JWS request/response signing).
 
-The service embeds [`bank8-open-core`](../bank8-open-core) - the
+The service embeds [`openfin8-core`](../openfin8-core) - the
 jurisdiction-agnostic kernel (OBARCH-1) - and supplies the UK OBIE
 profile, the FAPI 1 Advanced ceremony (client_credentials intent
 staging, hybrid flow with request objects binding the
@@ -56,12 +56,12 @@ the shared kernel through core's `awaiting_authorization` state and
 
 ```mermaid
 graph TD
-    subgraph "bank8-open-uk"
+    subgraph "openfin8-uk"
         PROF["UkProfile<br/>(OBIE 3.1.x descriptor)"]
         CER["FAPI Ceremony<br/>(client_credentials intent<br/>+ hybrid + JWS)"]
         WIRE["OB R/W router<br/>/open-banking/v3.1.11/*"]
     end
-    CORE["bank8-open-core<br/>(consent ledger · registry · CSDF · notify)"]
+    CORE["openfin8-core<br/>(consent ledger · registry · CSDF · notify)"]
     AUTH["Sentin8:Auth<br/>(FAPI 1 Advanced profile)"]
     LEDGER["Bank8:Ledger"]
     PAY["Bank8:Payments"]
@@ -92,7 +92,7 @@ make build    # cargo build
 make test     # cargo test
 make lint     # cargo fmt -- --check
 make start    # infra + trimmed boot if captain is down
-make status   # fleet rows for bank8:open-uk
+make status   # fleet rows for openfin8:uk
 make enroll   # register this repo (composable enrollment, RS §6)
 ```
 
@@ -105,5 +105,5 @@ used under the OBL MIT Open Licence.
 
 ---
 
-**Architecture & Design:** bank8:open-uk and its underlying concepts
+**Architecture & Design:** openfin8:uk and its underlying concepts
 were designed by [Hamid Jahanzad](https://www.linkedin.com/in/hamidjahanzad/).

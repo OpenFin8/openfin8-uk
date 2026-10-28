@@ -1,11 +1,11 @@
 {
-  "vertical": "bank8",
+  "vertical": "openfin8",
   "services": [
     {
-      "service_type": "bank8:open-uk",
+      "service_type": "openfin8:uk",
       "telemetry_property": {
-        "slug": "open-uk",
-        "name": "Bank8:OpenUK Telemetry"
+        "slug": "openfin8-uk",
+        "name": "OpenFin8:UK Telemetry"
       }
     }
   ]

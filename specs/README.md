@@ -1,4 +1,4 @@
-# Bank8:OpenUK - Upstream Specification References
+# OpenFin8:UK - Upstream Specification References
 
 **The Open Banking Standard may be vendored - with the notice.**
 
@@ -24,7 +24,7 @@ Operators download these from
 <https://standards.openbanking.org.uk/api-specifications/> and point
 conformance tooling at them. Nothing in this service reads them at
 runtime - the served surface is configured via
-`BANK8_OPEN_UK_VERSION` (default `3.1.11`).
+`OPENFIN8_UK_VERSION` (default `3.1.11`).
 
 For the FDX (US/CA) adapters the policy is the opposite: the FDX
 API specification is licensed under the FDX API License Agreement

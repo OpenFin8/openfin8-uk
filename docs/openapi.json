@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "bank8-open-uk",
+    "title": "openfin8-uk",
     "version": "0.1.0",
-    "description": "Sentin8 Bank8:OpenUK - UK open banking (OBL R/W API). The Open Banking Standard is published by Open Banking Limited under the MIT Open Licence (https://www.openbanking.org.uk/open-licence); portions of the Read/Write API surface included here are used under that licence with the OBL copyright notice preserved."
+    "description": "Sentin8 OpenFin8:UK - UK open banking (OBL R/W API). The Open Banking Standard is published by Open Banking Limited under the MIT Open Licence (https://www.openbanking.org.uk/open-licence); portions of the Read/Write API surface included here are used under that licence with the OBL copyright notice preserved."
   },
   "paths": {
     "/v1/health": {

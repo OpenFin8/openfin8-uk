@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright Logically Magic Inc. <hello@logicallymagic.com>
 // SPDX-FileCopyrightText: Copyright Hamid Jahanzad <Hamid@Jahanzad.com>
-// SPDX-FileCopyrightText: Copyright Contributors to the Bank8:OpenUK
+// SPDX-FileCopyrightText: Copyright Contributors to the OpenFin8:UK
 // SPDX-License-Identifier: Apache-2.0
 
 //! OpenAPI publication drift guard (OBARCH-2 - the VENDORED case).
@@ -14,7 +14,7 @@
 //!    material).
 //! 2. Every standard-surface path conforms to the versioned OB
 //!    prefix (`/open-banking/v{maj}.{min}/{aisp|pisp|cbpii}/...`)
-//!    derived from `BANK8_OPEN_UK_VERSION` - no stray prefixes.
+//!    derived from `OPENFIN8_UK_VERSION` - no stray prefixes.
 //! 3. The bank8-owned operation floor holds.
 
 use serde_json::Value;
@@ -56,7 +56,7 @@ fn openapi_publication_policy_holds() {
                         || path.contains("/cbpii/")),
                 "standard-surface path {path} must conform to \
 /open-banking/v{{maj}}.{{min}}/{{role}}/... (from \
-BANK8_OPEN_UK_VERSION)"
+OPENFIN8_UK_VERSION)"
             );
         }
     }

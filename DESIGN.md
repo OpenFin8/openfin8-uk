@@ -1,4 +1,4 @@
-# bank8-open-uk - Detailed Design Document
+# openfin8-uk - Detailed Design Document
 
 > Status: **PROPOSED** - the UK open-banking Account Servicing
 > Payment Services Provider (ASPSP) service (OBARCH-5),
@@ -7,20 +7,20 @@
 > configuration option). This is the first adapter with a non-FDX
 > wire and the largest build of the four: new ceremony profile,
 > new envelope, request signing, and an intent-based consent model.
-> Depends on: `bank8-open-core` (OBARCH-1). Read that document and
+> Depends on: `openfin8-core` (OBARCH-1). Read that document and
 > `bank8-open-us.DESIGN.md` first for shared context.
 
 ## 1. Scope & Context
 
 **What this service is.** The UK ASPSP surface (`service_type:
-bank8:open-uk`, binary `bank8-open-uk`): consent-checked
+openfin8:uk`, binary `openfin8-uk`): consent-checked
 account/transaction data, payment initiation, and confirmation of
 funds over the OBL Read/Write API
 paths (`/open-banking/v{maj}.{min}/{aisp|pisp|cbpii}/...`),
 serving Account Information Service Providers (AISPs), Payment
 Initiation Service Providers (PISPs), and Card-Based Payment
 Instrument Issuers (CBPIIs) - the TPP roles. It embeds
-`bank8-open-core` and supplies the UK profile, the FAPI-ceremony
+`openfin8-core` and supplies the UK profile, the FAPI-ceremony
 impl, and the OB wire router.
 
 **What core already gives it.** The grant ledger (consent resources
@@ -51,12 +51,12 @@ adapter must honor exactly.
 
 ```mermaid
 graph TD
-    subgraph bank8["bank8-open-uk (binary)"]
+    subgraph bank8["openfin8-uk (binary)"]
         PROF["UkProfile<br/>(OBIE 3.1.x descriptor)"]
         CER["FAPI Ceremony<br/>(client_credentials intent + hybrid + JWS)"]
         WIRE["OB R/W router<br/>/open-banking/v3.1.11/*"]
     end
-    CORE["bank8-open-core"]
+    CORE["openfin8-core"]
     subgraph platform
         AUTH["Sentin8:Auth<br/>(FAPI 1 Advanced profile,<br/>hybrid + request objects)"]
         BUS["Sentin8:Bus"]
@@ -69,14 +69,14 @@ graph TD
     CER --> AUTH
     WIRE -->|"consented reads"| LEDGER
     WIRE -->|"domestic payments/VRP initiation"| PAY
-    CORE -->|"events: bank8:open-uk:*"| BUS
+    CORE -->|"events: openfin8:uk:*"| BUS
 ```
 
 ## 2. The UK Profile
 
 ```rust
 pub struct UkProfile {
-    /// "3.1.11" | "4.0.1" from BANK8_OPEN_UK_VERSION (default "3.1.11").
+    /// "3.1.11" | "4.0.1" from OPENFIN8_UK_VERSION (default "3.1.11").
     version: String,
 }
 
@@ -237,16 +237,16 @@ discovery surface. Core's discovery pages render the served version
 
 ## 6. Registration & Configuration
 
-- `service-registration.json`: service_type `bank8:open-uk`,
-  subdomain `bank8-open-uk`; Shield gates `bank8:open-uk:*`
-  (role-scoped: `bank8:open-uk:aisp:*` etc. where the wire role
+- `service-registration.json`: service_type `openfin8:uk`,
+  subdomain `openfin8-uk`; Shield gates `openfin8:uk:*`
+  (role-scoped: `openfin8:uk:aisp:*` etc. where the wire role
   implies the gate).
-- `catalog.json`: binary `bank8-open-uk`, database env var
-  `BANK8_OPEN_UK_DATABASE_URL`.
-- Env: `BANK8_OPEN_UK_PORT`, `BANK8_OPEN_UK_DATABASE_URL`,
-  `BANK8_OPEN_UK_BASE_URL`, `BANK8_OPEN_UK_VERSION` (default
-  `3.1.11`), `BANK8_OPEN_UK_DIRECTORY_JWKS_URL` (OB Directory),
-  `BANK8_OPEN_UK_SIGNING_KEY_REF` (ASPSP signing key -
+- `catalog.json`: binary `openfin8-uk`, database env var
+  `OPENFIN8_UK_DATABASE_URL`.
+- Env: `OPENFIN8_UK_PORT`, `OPENFIN8_UK_DATABASE_URL`,
+  `OPENFIN8_UK_BASE_URL`, `OPENFIN8_UK_VERSION` (default
+  `3.1.11`), `OPENFIN8_UK_DIRECTORY_JWKS_URL` (OB Directory),
+  `OPENFIN8_UK_SIGNING_KEY_REF` (ASPSP signing key -
   `sentin8-secrets://` reference, PS256), plus the platform
   standard set; per-env overrides via `sys.services.config`.
 
@@ -307,7 +307,7 @@ under `specs/ob/{version}/` for reference instead.
   environment requires participant onboarding; whether the dev/e2e
   stack runs against a **mock Directory** (a fixture JWKS + SSA
   issuer in `bank8-e2e` fixtures) - leaning yes, with a
-  `BANK8_OPEN_UK_DIRECTORY_MODE=mock|real` env switch.
+  `OPENFIN8_UK_DIRECTORY_MODE=mock|real` env switch.
 - **VRP non-sweeping (`vrp-extended`)** - out of scope for the
   initial adapter; the consent table's `intent_payload` carries the
   control parameters either way, so the extension is additive.
@@ -318,5 +318,5 @@ under `specs/ob/{version}/` for reference instead.
 
 ---
 
-**Architecture & Design:** bank8:open-uk and its underlying concepts were
+**Architecture & Design:** openfin8:uk and its underlying concepts were
 designed by [Hamid Jahanzad](https://www.linkedin.com/in/hamidjahanzad/).

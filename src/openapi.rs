@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: Copyright Logically Magic Inc. <hello@logicallymagic.com>
 // SPDX-FileCopyrightText: Copyright Hamid Jahanzad <Hamid@Jahanzad.com>
-// SPDX-FileCopyrightText: Copyright Contributors to the Bank8:OpenUK
+// SPDX-FileCopyrightText: Copyright Contributors to the OpenFin8:UK
 // SPDX-License-Identifier: Apache-2.0
 
-//! OpenAPI spec for Bank8:OpenUK.
+//! OpenAPI spec for OpenFin8:UK.
 //!
 //! OBARCH-2 - the VENDORED case: the Open Banking Standard is
 //! published by Open Banking Limited under the MIT Open Licence
@@ -31,13 +31,13 @@ is subject to the Open Banking Limited MIT Open Licence \
 (https://www.openbanking.org.uk/open-licence). Copyright Open \
 Banking Limited.";
 
-/// Bank8:OpenUK OpenAPI surface: bank8-owned routes plus (as the
+/// OpenFin8:UK OpenAPI surface: OpenFin8-owned routes plus (as the
 /// wire lands) the OB resource paths under the OBL notice.
 #[derive(OpenApi)]
 #[openapi(
     info(
-        title = "bank8-open-uk",
-        description = "Sentin8 Bank8:OpenUK - UK open banking (OBL \
+        title = "openfin8-uk",
+        description = "Sentin8 OpenFin8:UK - UK open banking (OBL \
 Read/Write API v3.1.x/v4.0.1). The Open Banking Standard is \
 published by Open Banking Limited under the MIT Open Licence \
 (https://www.openbanking.org.uk/open-licence); portions of the \
