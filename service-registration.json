@@ -1,0 +1,12 @@
+{
+  "vertical": "bank8",
+  "services": [
+    {
+      "service_type": "bank8:open-uk",
+      "telemetry_property": {
+        "slug": "open-uk",
+        "name": "Bank8:OpenUK Telemetry"
+      }
+    }
+  ]
+}

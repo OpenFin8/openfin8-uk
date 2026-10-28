@@ -1,0 +1,16 @@
+# Build artifacts
+/target
+
+# Local environment (never commit secrets/DSNs)
+/.env
+
+# sqlx offline cache is COMMITTED (.sqlx/) — consumer builds run offline.
+# Cargo.lock is COMMITTED — reproducible pins for a binary/service repo.
+
+# Operator-supplied reference copies of the upstream OBL swagger
+# files (optional - the Open Banking Standard is MIT Open Licensed,
+# so this repository MAY vendor spec paths in its published spec;
+# the upstream YAML bundles themselves stay local-only to avoid
+# drifting from the published standard). See DESIGN.md §7.
+/specs/*
+!/specs/README.md
