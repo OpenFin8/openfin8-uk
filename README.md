@@ -1,6 +1,6 @@
 # OpenFin8:UK - README
 
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/OpenFin8/openfin8-uk/blob/main/LICENSE)
 [![Built with Rust](https://img.shields.io/badge/Built%20with%20Rust-orange.svg)](https://www.rust-lang.org/)
 [![Docs](https://img.shields.io/badge/docs/read-3aa757.svg)](https://bank8.dev/docs/services/open-uk)
 [![Website](https://img.shields.io/badge/website-bank8.dev-1a73e8.svg)](https://bank8.dev)
@@ -25,14 +25,14 @@ funds for CBPIIs - honoring the OBL wire contract exactly
 (`{Data, Links, Meta}` envelopes, 400-vs-404 semantics,
 `x-idempotency-key`, detached JWS request/response signing).
 
-The service embeds [`openfin8-core`](../openfin8-core) - the
+The service embeds [`openfin8-core`](https://github.com/OpenFin8/openfin8-core) - the
 jurisdiction-agnostic kernel (OBARCH-1) - and supplies the UK OBIE
 profile, the FAPI 1 Advanced ceremony (client_credentials intent
 staging, hybrid flow with request objects binding the
 `openbanking-intent-id`, PS256 detached JWS with the OB Directory
 JOSE claims), and the OB resource router. The US and Canadian
-adapters ([`bank8-open-us`](../bank8-open-us),
-[`bank8-open-ca`](../bank8-open-ca)) follow the same contract.
+adapters ([`bank8-open-us`](https://github.com/OpenFin8/openfin8-us),
+[`bank8-open-ca`](https://github.com/OpenFin8/openfin8-ca)) follow the same contract.
 
 **Licensing posture**: the Open Banking Standard is published by
 Open Banking Limited under the MIT Open Licence - unlike the FDX
@@ -73,7 +73,7 @@ graph TD
     WIRE -- "domestic payments/VRP initiation" --> PAY
 ```
 
-Read [`DESIGN.md`](DESIGN.md) (OBARCH-5) for the full design: the
+Read [`DESIGN.md`](https://github.com/OpenFin8/openfin8-uk/blob/main/DESIGN.md) (OBARCH-5) for the full design: the
 intent consent state machine, the FAPI ceremony steps, the envelope
 codec rules, the JWS signing profile, and the OB Directory trust
 integration.
@@ -98,7 +98,7 @@ make enroll   # register this repo (composable enrollment, RS §6)
 
 ## Contributing & License
 
-Apache-2.0 (see [LICENSE](LICENSE), [NOTICE](NOTICE)). The security
+Apache-2.0 (see [LICENSE](https://github.com/OpenFin8/openfin8-uk/blob/main/LICENSE), [NOTICE](https://github.com/OpenFin8/openfin8-uk/blob/main/NOTICE)). The security
 model is platform-wide - read [SECURITY.md](SECURITY.md). Portions
 of the Open Banking Standard referenced by the published spec are
 used under the OBL MIT Open Licence.
