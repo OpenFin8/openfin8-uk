@@ -50,13 +50,22 @@ fn openapi_publication_policy_holds() {
         let standard_surface = !(path.starts_with("/v1/") || path.starts_with("/openapi"));
         if standard_surface {
             assert!(
-                path.starts_with(OB_PREFIX)
-                    && (path.contains("/aisp/")
-                        || path.contains("/pisp/")
-                        || path.contains("/cbpii/")),
+                path.starts_with(OB_PREFIX),
                 "standard-surface path {path} must conform to \
-/open-banking/v{{maj}}.{{min}}/{{role}}/... (from \
-OPENFIN8_UK_VERSION)"
+/open-banking/v{{maj}}.{{min}}/... (from OPENFIN8_UK_VERSION)"
+            );
+            // The role-segmented families (aisp/pisp/cbpii) carry their
+            // role; the OBL Event Notification API sits at the OB
+            // prefix root (NOT role-scoped - UK DESIGN §5: "POST
+            // /event-notifications (webhook mode), GET
+            // event-notifications/{...} (aggregated polling)").
+            assert!(
+                path.contains("/aisp/")
+                    || path.contains("/pisp/")
+                    || path.contains("/cbpii/")
+                    || path.ends_with("/event-notifications"),
+                "standard-surface path {path} must be role-segmented \
+(aisp/pisp/cbpii) or the event-notification root (UK DESIGN §5)"
             );
         }
     }

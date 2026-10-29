@@ -1,9 +1,12 @@
 # OpenFin8:UK - Business Requirements & Functionality
 
-> Status: **IN DESIGN** (OBARCH-5) - the OBL Read/Write API ASPSP
-> adapter. This BRD records the business scope the adapter will deliver;
-> section 9 lists the implementation acceptance criteria (not yet met -
-> the service is a skeleton).
+> Status: **IN IMPLEMENTATION → the OB surface landed** (OBARCH-5) -
+> the OBL Read/Write API ASPSP adapter. This BRD records the business
+> scope the adapter will deliver; section 9 lists the implementation
+> acceptance criteria - the consent model (bullet 2), the ceremony +
+> JWS (bullet 3), the envelope + error semantics (bullet 4), and the
+> e2e journey (bullet 5) have LANDED (backlog UK-1..UK-9); the
+> FAPI-browser-PSU half is the recipient-app story.
 >
 > Audience: product owners, business analysts, and anyone evaluating what
 > the UK adapter **will do for the business**. For architecture read
@@ -140,13 +143,32 @@ in DCR - a mock directory mode drives dev/e2e).
   OBL notice asserted) - **current state**.
 - The intent consent state machine over the kernel's
   `awaiting_authorization` + `intent_payload` lands, with the staged
-  intent expiry sweep.
+  intent expiry sweep - **LANDED (UK-2)**: the four-state OB machine,
+  the client-credentials staging, the authorization observation, the
+  revocation→400 rule, and the declared 24h sweep schedule.
 - The FAPI ceremony green against Auth's FAPI profile on a scratch
-  org; JWS sign/verify against a test Directory JWKS.
+  org; JWS sign/verify against a test Directory JWKS - **LANDED
+  (UK-3, the adapter half)**: the JOSE-header validation, the
+  fail-closed verdicts (Directory down → 503, never skip-verify),
+  the DCR body with the SSA, the hybrid request-object shape, and
+  the dev-fixture sign/verify; the Auth FAPI-profile drive + the real
+  Directory JWKS are the platform/production halves.
 - The envelope codec round-trips (conditional exclusion, empty-array,
-  pagination); the 400-vs-404 fixture suite passes.
+  pagination); the 400-vs-404 fixture suite passes - **LANDED
+  (UK-4)**: the `{Data, Risk, Links, Meta}` codec + `OBErrorResponse1`
+  + the OBL error rules, unit-tested.
 - The e2e journey gains the UK AISP flow + the PISP domestic payment
-  flow.
+  flow - **LANDED (UK-8, the adapter-contract lane)**:
+  `openfin8_uk_ob_journey.spec.ts` (the intent staging, the envelope
+  assertions, the revocation→400 verdict, the JWS + idempotency
+  gates, the honest 404s); the browser FAPI PSU page is the
+  recipient-app story.
+- AIS/PIS/CBPII behind the intent chokepoint - **LANDED (UK-5/UK-6/
+  UK-7)**: the aisp reads (the Ledger lane), the domestic payments +
+  VRP with the control-parameter enforcement (UK invariant 4), the
+  cbpii funds confirmations, and the OBL event notifications; file
+  payments answer the honest 404 (the decided follow-on); the
+  published spec + drift guard + the site dossier landed (UK-9).
 
 ## 10. Open Business Questions
 

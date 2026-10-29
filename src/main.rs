@@ -28,26 +28,17 @@
 
 use utoipa::OpenApi;
 
-mod openapi;
+use openfin8_uk_server::{openapi, registration, router};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     sentin8::shell::serve(
         sentin8::shell::Sentin8Shell::new("openfin8:uk", "OPENFIN8_UK")
-            .with_registration(print_registration_stub)
+            .with_registration(registration::print)
             .with_own_health()
+            .with_state(router::build_state)
+            .with_router(router::routes)
             .with_openapi(openapi::UkOpenApi::openapi()),
     )
     .await
-}
-
-/// Registration stub - the full registration data (policy sets,
-/// Shield gates `openfin8:uk:*` role-scoped, admin UI pages, SQL
-/// migrations, the staged-intent expiry schedule) lands with the
-/// OBARCH-1 extraction; the shape follows the `openfin8-us`
-/// registration (per-jurisdiction identity).
-fn print_registration_stub(section: Option<String>) -> anyhow::Result<()> {
-    // Placeholder until the registration module lands (OBARCH-5).
-    let _ = section;
-    Ok(())
 }

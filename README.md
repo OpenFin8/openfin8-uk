@@ -80,9 +80,56 @@ integration.
 
 ## Status
 
-**Skeleton** - the trait-shaped binary boots on the sentin8 shell
-with a stub registration; the OBARCH-1 core extraction lands first,
-then the UK wire, ceremony, and registration follow.
+**The OB surface is implemented** (OBARCH-5, backlog UK-1..UK-9):
+
+- the **intent-based consent model** (`src/consent.rs`) - the
+  client-credentials staging into `intent_payload`, the OB four-state
+  machine (`AwaitingAuthorisation`/`Authorised`/`Rejected`/`Consumed`
+  + terminal `Revoked`), the authorization observation path, the
+  revocation→400 OBL rule, and the 24h staged-intent expiry sweep
+  (the declared cron schedule);
+- the **FAPI 1 Advanced ceremony + detached JWS signing**
+  (`src/ceremony.rs`) - the OB Directory `crit`/`iss`/`tan`/`iat`
+  JOSE-header validation, the fail-closed verdicts (the Directory down
+  → 503, never skip-verify), the DCR body with the software-statement
+  assertion, and the hybrid request-object shape binding the
+  `openbanking-intent-id`;
+- the **OB envelope codec + error model** (`src/envelope.rs`) - the
+  `{Data, Risk, Links, Meta}` wrapping with absolute self-links +
+  conditional pagination, the request unwrapping, the
+  conditional-field exclusion (never null-rendered; empty arrays
+  stay), `OBErrorResponse1` with the `UK.OBIE.*` vocabulary, and the
+  OBL error rules (unknown id → 400; defined-but-unimplemented →
+  404; empty lists → 200-with-empty-array);
+- the **aisp surfaces** (`src/aisp.rs`) - the account/sub-resource
+  reads behind the intent-bound permission chokepoint (the Ledger
+  proxy lane, OBVERT), the statement file redirect, and the honest
+  404s for the unserved sub-resources;
+- the **pisp surfaces + VRP** (`src/pisp.rs`) - the domestic-payment
+  and VRP consent staging (the control parameters persisted on the
+  consent), the payment submissions with the `x-idempotency-key`
+  discipline and the JWS gate, the **VRP control-parameter
+  enforcement at initiation time** (UK invariant 4), and the honest
+  file-payments 404 (the decided follow-on);
+- the **cbpii surfaces + the OBL event notifications** (`src/cbpii.rs`)
+  - the funds-confirmation consent + check (the Ledger balance
+  verdict), and the webhook + aggregated-polling event routes;
+- the **e2e journey** (`openfin8-e2e`:
+  `openfin8_uk_ob_journey.spec.ts`) - the intent staging, the
+  envelope assertions, the revocation→400 verdict, the JWS +
+  idempotency gates, and the honest 404s;
+- the **published spec + drift guard** - the vendored OBL-notice
+  spec (17 ops under `/open-banking/v3.1/*`), the OAPEC
+  router↔spec drift guard both directions, and the site's UK dossier
+  (the product pages + the API tree).
+
+The schema is `openfin8_uk` (the intent-staged consents + the VRP
+control parameters + the recipient registry + the provider catalog;
+FORCE-RLS env-pinned). Remaining: the browser-driven FAPI PSU
+authorization page (the recipient-app story), the resolved
+signing-key material (the production PS256 path over the dev
+fixture), the real OB Directory JWKS fetch (the dev fixture stands
+in), and the file-payments family as it ships.
 
 ## Development
 

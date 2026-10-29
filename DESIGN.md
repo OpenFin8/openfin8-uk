@@ -1,14 +1,30 @@
 # openfin8-uk - Detailed Design Document
 
-> Status: **PROPOSED** - the UK open-banking Account Servicing
-> Payment Services Provider (ASPSP) service (OBARCH-5),
-> implementing the Open Banking Limited (OBL) Read/Write API
-> standard (v3.1.x line - 3.1.11 the initial target, v4.0.1 a
-> configuration option). This is the first adapter with a non-FDX
-> wire and the largest build of the four: new ceremony profile,
-> new envelope, request signing, and an intent-based consent model.
-> Depends on: `openfin8-core` (OBARCH-1). Read that document and
-> `bank8-open-us.DESIGN.md` first for shared context.
+> Status: **IMPLEMENTED (first full pass)** - the UK open-banking
+> Account Servicing Payment Services Provider (ASPSP) service
+> (OBARCH-5), implementing the Open Banking Limited (OBL) Read/Write
+> API standard (v3.1.x line - 3.1.11 the initial target, v4.0.1 a
+> configuration option). The first adapter with a non-FDX wire:
+> new ceremony profile, new envelope, request signing, and the
+> intent-based consent model. Depends on: `openfin8-core` (OBARCH-1;
+> `Profile::united_kingdom()` on tag `openfin8-v0.1.3`).
+>
+> **Landed (backlog UK-1..UK-9)**: the full OB surface - the intent
+> consent model (`src/consent.rs`: the client-credentials staging into
+> `intent_payload`, the OB four-state machine, the authorization
+> observation, the revocation→400 rule, the 24h staged-intent sweep),
+> the FAPI/JWS machinery (`src/ceremony.rs`: the OB Directory JOSE
+> claims, the fail-closed verdicts, the DCR/SSA body, the hybrid
+> request object), the envelope + error model (`src/envelope.rs`:
+> the `{Data, Risk, Links, Meta}` codec, the conditional-field
+> exclusion, `OBErrorResponse1`, the OBL error rules), the aisp/pisp/
+> cbpii surfaces + VRP control-parameter enforcement, the OBL event
+> notifications, the e2e journey, the published spec (17 ops) + the
+> drift guard + the site dossier. **Remaining**: the browser FAPI PSU
+> authorization page (the recipient-app story), the resolved
+> signing-key material + the real Directory JWKS (the production
+> trust halves over the dev fixtures), and the file-payments family
+> as it ships.
 
 ## 1. Scope & Context
 

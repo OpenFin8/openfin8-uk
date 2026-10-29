@@ -23,12 +23,12 @@ path = "src/lib.rs"
 [dependencies]
 # Platform SDK pin (RS 2.3) - the only cross-repo dependency; carries the
 # entire shared library workspace behind the `sentin8` facade.
-sentin8 = { git = "https://github.com/Sentin8/sentin8-sdk", tag = "sdk-v0.6.7" }
+sentin8 = { git = "https://github.com/Sentin8/sentin8-sdk", tag = "sdk-v0.6.19" }
 # bank8 namespace facade pin - carries this vertical's contracts/clients.
 bank8 = { git = "https://github.com/Bank8-dev/bank8-sdk", tag = "bank8-v0.5.8" }
 # The open-banking kernel (OBARCH-1): consent ledger, recipient registry,
 # CSDF, notifications, admin, the adapter traits, and the shared FDX wire.
-openfin8-core = { git = "https://github.com/OpenFin8/openfin8-core", tag = "openfin8-v0.1.0" }
+openfin8-core = { git = "https://github.com/OpenFin8/openfin8-core", tag = "openfin8-v0.1.3" }
 
 axum = { version = "0.8", features = ["macros"] }
 tokio = { version = "1", features = ["full"] }
@@ -52,4 +52,5 @@ futures-util = "0.3"
 jsonwebtoken = "9"
 utoipa = { version = "5", features = ["chrono", "uuid", "decimal"] }
 sha2 = "0.10"
+rust_decimal = { version = "1", features = ["serde"] }
 sentin8-secrets-sdk = { git = "https://github.com/Sentin8/sentin8-secrets", tag = "secrets-sdk-v0.4.0" }

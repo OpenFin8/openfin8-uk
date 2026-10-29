@@ -2,18 +2,827 @@
   "openapi": "3.1.0",
   "info": {
     "title": "openfin8-uk",
-    "version": "0.1.0",
-    "description": "Sentin8 OpenFin8:UK - UK open banking (OBL R/W API). The Open Banking Standard is published by Open Banking Limited under the MIT Open Licence (https://www.openbanking.org.uk/open-licence); portions of the Read/Write API surface included here are used under that licence with the OBL copyright notice preserved."
+    "description": "Sentin8 OpenFin8:UK - UK open banking (OBL Read/Write API v3.1.x/v4.0.1). The Open Banking Standard is published by Open Banking Limited under the MIT Open Licence (https://www.openbanking.org.uk/open-licence); portions of the Read/Write API surface included here are used under that licence with the OBL copyright notice preserved.",
+    "license": {
+      "name": "MIT OR Apache-2.0",
+      "identifier": "MIT OR Apache-2.0"
+    },
+    "version": "0.1.0"
   },
   "paths": {
-    "/v1/health": {
+    "/open-banking/v3.1/aisp/account-access-consents": {
+      "post": {
+        "tags": [
+          "aisp"
+        ],
+        "summary": "`POST .../aisp/account-access-consents` - stage the AIS intent (the\nclient-credentials staging; the OB consent body - the codec unwraps\n`Data`/`Risk`).",
+        "operationId": "stage_aisp_consent",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StageConsentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The staged consent (AwaitingAuthorisation)"
+          },
+          "400": {
+            "description": "Field/permission errors"
+          }
+        },
+        "security": []
+      }
+    },
+    "/open-banking/v3.1/aisp/account-access-consents/{consentId}": {
       "get": {
+        "tags": [
+          "aisp"
+        ],
+        "summary": "`GET .../aisp/account-access-consents/{consentId}` - read the staged\nconsent (the intent status).",
+        "operationId": "get_aisp_consent",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "The consent document"
+          },
+          "400": {
+            "description": "Unknown consent id (the OBL rule: 400)"
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "tags": [
+          "aisp"
+        ],
+        "summary": "`DELETE .../aisp/account-access-consents/{consentId}` - the TPP\nrevocation (terminal; subsequent reads answer 400).",
+        "operationId": "delete_aisp_consent",
+        "responses": {
+          "204": {
+            "description": "The consent revoked (no content)"
+          },
+          "400": {
+            "description": "Unknown consent id (the OBL rule: 400)"
+          }
+        },
+        "security": []
+      }
+    },
+    "/open-banking/v3.1/aisp/account-access-consents/{consentId}/accounts": {
+      "get": {
+        "tags": [
+          "aisp"
+        ],
+        "summary": "`GET .../aisp/account-access-consents/{consentId}/accounts` - the\nconsented account list (the intent-bound read).",
+        "operationId": "get_accounts",
+        "responses": {
+          "200": {
+            "description": "The enveloped account list"
+          },
+          "400": {
+            "description": "The consent chokepoint verdict (the OBL 400 rule)"
+          },
+          "503": {
+            "description": "Ledger proxy transport absent"
+          }
+        },
+        "security": []
+      }
+    },
+    "/open-banking/v3.1/aisp/account-access-consents/{consentId}/accounts/{accountId}/statements/{statementId}/file": {
+      "get": {
+        "tags": [
+          "aisp"
+        ],
+        "summary": "`GET .../aisp/account-access-consents/{consentId}/accounts/{accountId}/statements/{statementId}/file` -\nthe statement download (302 → the Storage signed URL - the CA\nstatement precedent).",
+        "operationId": "download_statement",
+        "responses": {
+          "302": {
+            "description": "Redirect to the signed statement URL (Storage link API)"
+          },
+          "400": {
+            "description": "The consent chokepoint verdict"
+          }
+        },
+        "security": []
+      }
+    },
+    "/open-banking/v3.1/aisp/account-access-consents/{consentId}/accounts/{accountId}/{resource}": {
+      "get": {
+        "tags": [
+          "aisp"
+        ],
+        "summary": "`GET .../aisp/account-access-consents/{consentId}/accounts/{accountId}/{resource}` -\nthe per-account sub-resource reads (balances, transactions,\nbeneficiaries, direct-debits, standing-orders, statements,\nscheduled-payments, offers, parties, products).",
+        "operationId": "get_account_subresource",
+        "responses": {
+          "200": {
+            "description": "The enveloped sub-resource list"
+          },
+          "400": {
+            "description": "The consent chokepoint verdict (the OBL 400 rule)"
+          },
+          "404": {
+            "description": "The resource is defined but not implemented"
+          },
+          "503": {
+            "description": "Ledger proxy transport absent"
+          }
+        },
+        "security": []
+      }
+    },
+    "/open-banking/v3.1/cbpii/funds-confirmation-consents": {
+      "post": {
+        "tags": [
+          "cbpii"
+        ],
+        "summary": "`POST .../cbpii/funds-confirmation-consents` - stage the\nfunds-confirmation intent (the cbpii role).",
+        "operationId": "stage_funds_confirmation_consent",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundsConfirmationConsentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The staged funds-confirmation consent"
+          },
+          "400": {
+            "description": "Field/role errors"
+          }
+        },
+        "security": []
+      }
+    },
+    "/open-banking/v3.1/cbpii/funds-confirmations": {
+      "post": {
+        "tags": [
+          "cbpii"
+        ],
+        "summary": "`POST .../cbpii/funds-confirmations` - the funds check (the\nintent-bound consent + the Ledger balance verdict).",
+        "operationId": "confirm_funds",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundsConfirmationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The funds-confirmation verdict (the OB envelope)"
+          },
+          "400": {
+            "description": "The consent chokepoint verdict (the OBL 400 rule)"
+          },
+          "503": {
+            "description": "Ledger proxy transport absent"
+          }
+        },
+        "security": []
+      }
+    },
+    "/open-banking/v3.1/event-notifications": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "summary": "`GET /open-banking/v{maj}.{min}/event-notifications` - the\naggregated-polling mode (the TPP polls the set; `moreToFollow`\nwhen the set carries more).",
+        "operationId": "poll_event_notifications",
+        "responses": {
+          "200": {
+            "description": "The event-notification set (the OB envelope)"
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "tags": [
+          "events"
+        ],
+        "summary": "`POST /open-banking/v{maj}.{min}/event-notifications` - the webhook\nmode submission (JWS-signed payloads - the kernel's delivery worker\nowns the queue; this route is the TPP-facing ingestion).",
+        "operationId": "submit_event_notifications",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventNotificationSubmission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "The event notifications accepted (no content)"
+          }
+        },
+        "security": []
+      }
+    },
+    "/open-banking/v3.1/pisp/domestic-payment-consents": {
+      "post": {
+        "tags": [
+          "pisp"
+        ],
+        "summary": "`POST .../pisp/domestic-payment-consents` - stage the\ndomestic-payment intent (the client-credentials staging + the JWS\ngate).",
+        "operationId": "stage_domestic_payment_consent",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DomesticPaymentConsentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The staged consent (AwaitingAuthorisation)"
+          },
+          "400": {
+            "description": "Field/permission/JWS errors (the OB envelope)"
+          },
+          "503": {
+            "description": "The Directory JWKS is unreachable (fail-closed)"
+          }
+        },
+        "security": []
+      }
+    },
+    "/open-banking/v3.1/pisp/domestic-payment-consents/{consentId}": {
+      "get": {
+        "tags": [
+          "pisp"
+        ],
+        "summary": "`GET .../pisp/domestic-payment-consents/{consentId}` - read the staged\nconsent (the intent status).",
+        "operationId": "get_domestic_payment_consent",
+        "responses": {
+          "200": {
+            "description": "The consent document (the OB envelope)"
+          },
+          "400": {
+            "description": "Unknown consent id (the OBL rule: 400)"
+          }
+        },
+        "security": []
+      }
+    },
+    "/open-banking/v3.1/pisp/domestic-payments": {
+      "post": {
+        "tags": [
+          "pisp"
+        ],
+        "summary": "`POST .../pisp/domestic-payments` - the payment initiation (the\nintent-bound consent, the idempotency-key discipline, the JWS gate,\nthe Payments proxy - OBVERT).",
+        "operationId": "create_domestic_payment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DomesticPaymentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The payment accepted (the OB envelope)"
+          },
+          "400": {
+            "description": "Field/idempotency/JWS/consent errors"
+          },
+          "503": {
+            "description": "The Payments proxy transport absent / the Directory down"
+          }
+        },
+        "security": []
+      }
+    },
+    "/open-banking/v3.1/pisp/domestic-payments/{domesticPaymentId}": {
+      "get": {
+        "tags": [
+          "pisp"
+        ],
+        "summary": "`GET .../pisp/domestic-payments/{domesticPaymentId}` - the payment\nstatus read (the Payments proxy).",
+        "operationId": "get_domestic_payment",
+        "responses": {
+          "200": {
+            "description": "The payment status (the OB envelope)"
+          },
+          "400": {
+            "description": "Unknown payment id (the OBL rule: 400)"
+          }
+        },
+        "security": []
+      }
+    },
+    "/open-banking/v3.1/pisp/domestic-vrp-consents": {
+      "post": {
+        "tags": [
+          "pisp"
+        ],
+        "summary": "`POST .../pisp/domestic-vrp-consents` - stage the VRP intent (the\ncontrol parameters land on the consent).",
+        "operationId": "stage_domestic_vrp_consent",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DomesticVrpConsentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The staged VRP consent"
+          },
+          "400": {
+            "description": "Field/JWS errors"
+          }
+        },
+        "security": []
+      }
+    },
+    "/open-banking/v3.1/pisp/file-payment-consents": {
+      "post": {
+        "tags": [
+          "pisp"
+        ],
+        "summary": "`POST .../pisp/file-payment-consents` + the file family - the honest\n404 (defined-but-unimplemented; the decided follow-on).",
+        "operationId": "file_payments_unimplemented",
+        "responses": {
+          "404": {
+            "description": "The file-payments resource is defined but not implemented (the follow-on)"
+          }
+        },
+        "security": []
+      }
+    },
+    "/v1/internal/sweep/staged-intents": {
+      "post": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "The staged-intent expiry sweep (UK-2: OBL - un-authorized intents\ndie at 24h; the cron proxy-calls this endpoint on the declared\nschedule). The expired intents move `AwaitingAuthorisation →\nRejected` through the pure table (terminal; a PSU arriving late\ncannot authorize a dead intent).",
+        "operationId": "sweep_staged_intents",
+        "responses": {
+          "204": {
+            "description": "The expired staged intents rejected (no content)"
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ConsentResponse": {
+        "type": "object",
+        "description": "The OB consent document (the wire shape - the `Data` of the\n`OBReadConsentResponse1`).",
+        "required": [
+          "ConsentId",
+          "CreationDateTime",
+          "status",
+          "StatusUpdateDateTime",
+          "permissions"
+        ],
+        "properties": {
+          "ConsentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The OB ConsentId (IS the core consent id)."
+          },
+          "CreationDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The creation timestamp."
+          },
+          "ExpirationDateTime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "The ExpirationDateTime (absent for the default window)."
+          },
+          "StatusUpdateDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The OB status-update timestamp."
+          },
+          "TransactionFromDateTime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "The consent body's TransactionFrom/To (absent when unset)."
+          },
+          "TransactionToDateTime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The OB Permissions granted."
+          },
+          "status": {
+            "type": "string",
+            "description": "The OB consent status."
+          }
+        }
+      },
+      "DomesticPaymentConsentRequest": {
+        "type": "object",
+        "description": "`POST .../pisp/domestic-payment-consents` request body (the OB\nconsent body - the codec unwraps `Data`/`Risk`).",
+        "properties": {
+          "initiation": {
+            "$ref": "#/components/schemas/Value",
+            "description": "The initiation document (the OB OBWriteDomesticConsent -\ngenuinely freeform: the OBInitiation family)."
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "risk": {
+            "$ref": "#/components/schemas/Value",
+            "description": "The risk document (the passthrough)."
+          }
+        }
+      },
+      "DomesticPaymentRequest": {
+        "type": "object",
+        "description": "`POST .../pisp/domestic-payments` request body.",
+        "properties": {
+          "ConsentId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "description": "The intent: the consent id this payment executes against (the\nOB ConsentId - the token binding's join key)."
+          },
+          "initiation": {
+            "$ref": "#/components/schemas/Value",
+            "description": "The initiation document."
+          },
+          "risk": {
+            "$ref": "#/components/schemas/Value"
+          }
+        }
+      },
+      "DomesticVrpConsentRequest": {
+        "type": "object",
+        "description": "`POST .../pisp/domestic-vrp-consents` request body (the VRP control\nparameters ride the consent - UK invariant 4).",
+        "properties": {
+          "ControlParameters": {
+            "$ref": "#/components/schemas/VrpControlParameters",
+            "description": "The control parameters (the OBL ControlParameters member)."
+          },
+          "initiation": {
+            "$ref": "#/components/schemas/Value"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "risk": {
+            "$ref": "#/components/schemas/Value"
+          }
+        }
+      },
+      "EventNotificationResponse": {
+        "type": "object",
+        "description": "The aggregated-polling response (the OBL `EventNotificationResponse`).",
+        "required": [
+          "SetName",
+          "moreToFollow",
+          "events"
+        ],
+        "properties": {
+          "SetName": {
+            "type": "string",
+            "description": "The set id."
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Value"
+            }
+          },
+          "moreToFollow": {
+            "type": "boolean",
+            "description": "The notifications (freeform OB payloads)."
+          }
+        }
+      },
+      "EventNotificationSubmission": {
+        "type": "object",
+        "description": "The OBL event-notification submission (webhook mode).",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Value"
+            },
+            "description": "The event notifications (the OBL `Event` array - genuinely\nfreeform: the OB event payloads)."
+          }
+        }
+      },
+      "FundsAvailable": {
+        "type": "object",
+        "description": "The `FundsAvailableResult` member.",
+        "required": [
+          "FundsAvailable"
+        ],
+        "properties": {
+          "FundsAvailable": {
+            "type": "boolean"
+          }
+        }
+      },
+      "FundsConfirmationConsentRequest": {
+        "type": "object",
+        "description": "`POST .../cbpii/funds-confirmation-consents` request body.",
+        "properties": {
+          "DebtorAccount": {
+            "$ref": "#/components/schemas/Value",
+            "description": "The debtor account document (the OB DebtorAccount)."
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "FundsConfirmationRequest": {
+        "type": "object",
+        "description": "`POST .../cbpii/funds-confirmations` request body.",
+        "required": [
+          "ConsentId"
+        ],
+        "properties": {
+          "ConsentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The funds-confirmation consent id."
+          },
+          "instruction": {
+            "$ref": "#/components/schemas/Value",
+            "description": "The instruction document (the amount to confirm)."
+          }
+        }
+      },
+      "FundsConfirmationResponse": {
+        "type": "object",
+        "description": "The funds-confirmation verdict (the OB FundsConfirmationResult).",
+        "required": [
+          "ConsentId",
+          "FundsAvailableResult"
+        ],
+        "properties": {
+          "ConsentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "FundsAvailableResult": {
+            "$ref": "#/components/schemas/FundsAvailable",
+            "description": "`FundsAvailable` - the OBL boolean answer."
+          }
+        }
+      },
+      "ObErrorItem": {
+        "type": "object",
+        "description": "One OB error (`OBErrorResponse1.Errors[*]`).",
+        "required": [
+          "ErrorCode",
+          "Message"
+        ],
+        "properties": {
+          "ErrorCode": {
+            "type": "string",
+            "description": "The OB error code (the `UK.OBIE.*` vocabulary)."
+          },
+          "Message": {
+            "type": "string",
+            "description": "The human message."
+          },
+          "Path": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The field path (present when the error is field-scoped -\nthe conditional rule)."
+          },
+          "Url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The URL of the schema element that failed."
+          }
+        }
+      },
+      "ObErrorResponse": {
+        "type": "object",
+        "description": "The `OBErrorResponse1` shape - the adapter's error renderer.",
+        "required": [
+          "Code",
+          "Message",
+          "Errors"
+        ],
+        "properties": {
+          "Code": {
+            "type": "string",
+            "description": "The HTTP status code as a string (the OB ErrorResponse shape)."
+          },
+          "Errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ObErrorItem"
+            },
+            "description": "The errors array (at least one item)."
+          },
+          "Id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "A unique id for this error response."
+          },
+          "Message": {
+            "type": "string",
+            "description": "The human message."
+          }
+        }
+      },
+      "ObRequestObject": {
+        "type": "object",
+        "description": "The FAPI hybrid-flow request-object shape (the intent bound in): the\n`openbanking-intent-id` claim carries the consent id (the token\nbinding's join key - verified at the middleware).",
+        "required": [
+          "aud",
+          "response_type",
+          "redirect_uri",
+          "code_challenge",
+          "code_challenge_method",
+          "openbanking-intent-id",
+          "nonce"
+        ],
+        "properties": {
+          "aud": {
+            "type": "string",
+            "description": "The AS issuer (aud of the request object)."
+          },
+          "code_challenge": {
+            "type": "string",
+            "description": "The PKCE challenge (S256)."
+          },
+          "code_challenge_method": {
+            "type": "string"
+          },
+          "nonce": {
+            "type": "string",
+            "description": "The nonce (the id_token echoes it)."
+          },
+          "openbanking-intent-id": {
+            "type": "string",
+            "description": "**The intent binding**: the OB ConsentId this authorization is\nfor (the issued token binds to it)."
+          },
+          "redirect_uri": {
+            "type": "string",
+            "description": "The redirect URI."
+          },
+          "response_type": {
+            "type": "string",
+            "description": "The hybrid response type (FAPI: `code id_token`)."
+          }
+        }
+      },
+      "PaymentResult": {
+        "type": "object",
+        "description": "The payment submission result (the OB OBWriteDomesticResponse's Data\nshape - the forwarded Payments document is genuinely freeform).",
+        "required": [
+          "DomesticPaymentId",
+          "status",
+          "CreationDateTime"
+        ],
+        "properties": {
+          "ConsentId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "CreationDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "DomesticPaymentId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "StageConsentRequest": {
+        "type": "object",
+        "description": "`POST .../account-access-consents` request body (the OB\n`OBReadConsentResponse1`-shaped staging body): the intent the TPP\nstages.",
+        "properties": {
+          "ExpirationDateTime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The ExpirationDateTime of the consent (ISO 8601; absent = the\ndefault window)."
+          },
+          "TransactionFromDateTime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The TransactionFromDateTime (AIS: the lookback window start)."
+          },
+          "TransactionToDateTime": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The TransactionToDateTime (AIS)."
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The OB Permissions requested."
+          },
+          "risk": {
+            "description": "The risk payload (genuinely freeform - the OB risk document)."
+          }
+        }
+      },
+      "Value": {},
+      "VrpControlParameters": {
+        "type": "object",
+        "description": "The VRP control parameters (OB ControlParameters).",
+        "properties": {
+          "MaxSinglesAmount": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The maximum single-payment amount."
+          },
+          "PeriodicAlignment": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The period unit (day | week | fortnight | month | half-year | year | hour)."
+          },
+          "PeriodicLimits": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Value",
+                "description": "The periodic limit (OB PeriodicLimits - the first entry's\namount/period)."
+              }
+            ]
           }
         }
       }
     }
-  }
+  },
+  "security": []
 }
