@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the OpenFin8:UK
 // SPDX-License-Identifier: Apache-2.0
 
-//! The UK adapter's router + state (OBARCH-5).
+//! The UK adapter's router + state).
 //!
 //! The OB R/W wire is adapter-owned (the first non-FDX wire family): the
 //! kernel contributes the jurisdiction `Profile`

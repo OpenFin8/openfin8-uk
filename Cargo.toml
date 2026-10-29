@@ -26,7 +26,7 @@ path = "src/lib.rs"
 sentin8 = { git = "https://github.com/Sentin8/sentin8-sdk", tag = "sdk-v0.6.19" }
 # bank8 namespace facade pin - carries this vertical's contracts/clients.
 bank8 = { git = "https://github.com/Bank8-dev/bank8-sdk", tag = "bank8-v0.5.8" }
-# The open-banking kernel (OBARCH-1): consent ledger, recipient registry,
+# The open-banking kernel: consent ledger, recipient registry,
 # CSDF, notifications, admin, the adapter traits, and the shared FDX wire.
 openfin8-core = { git = "https://github.com/OpenFin8/openfin8-core", tag = "openfin8-v0.1.3" }
 

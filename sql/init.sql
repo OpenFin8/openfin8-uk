@@ -51,8 +51,7 @@ CREATE TABLE IF NOT EXISTS openfin8_uk.consents (
     permissions     TEXT[] NOT NULL DEFAULT '{}',
     -- THE INTENT: the staged consent resource serialized verbatim (the
     -- OB body the TPP POSTed) - the authorization journey + the data
-    -- calls resolve everything from it (core's intent_payload column,
-    -- OBARCH-1 §3).
+    -- calls resolve everything from it (core's intent_payload column).
     intent_payload  JSONB NOT NULL DEFAULT '{}',
     -- The expiration the consent body requested (OBL
     -- ExpirationDateTime; absent = the default window).

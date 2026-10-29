@@ -3,8 +3,8 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the OpenFin8:UK
 // SPDX-License-Identifier: Apache-2.0
 
-//! The PIS surfaces + VRP (OBARCH-5 - UK DESIGN.md §5 the pisp + VRP rows,
-//! §8 the VRP invariant; backlog UK-6).
+//! The PIS surfaces + VRP- UK DESIGN.md §5 the pisp + VRP rows,
+//! §8 the VRP invariant; ).
 //!
 //! `POST/GET domestic-payment-consents` + `POST/GET domestic-payments`
 //! (the `x-idempotency-key` discipline; the risk payload passthrough)

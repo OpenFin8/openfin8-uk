@@ -3,8 +3,8 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the OpenFin8:UK
 // SPDX-License-Identifier: Apache-2.0
 
-//! The FAPI 1 Advanced ceremony + detached JWS signing (OBARCH-5 - UK
-//! DESIGN.md §4, §8; backlog UK-3).
+//! The FAPI 1 Advanced ceremony + detached JWS signing- UK
+//! DESIGN.md §4, §8; ).
 //!
 //! **Detached JWS request verification**: every consent/payment POST and
 //! every payment PUT carries `x-jws-signature` - a detached PS256 JWS

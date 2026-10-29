@@ -26,7 +26,7 @@ funds for CBPIIs - honoring the OBL wire contract exactly
 `x-idempotency-key`, detached JWS request/response signing).
 
 The service embeds [`openfin8-core`](https://github.com/OpenFin8/openfin8-core) - the
-jurisdiction-agnostic kernel (OBARCH-1) - and supplies the UK OBIE
+jurisdiction-agnostic kernel - and supplies the UK OBIE
 profile, the FAPI 1 Advanced ceremony (client_credentials intent
 staging, hybrid flow with request objects binding the
 `openbanking-intent-id`, PS256 detached JWS with the OB Directory
@@ -73,14 +73,12 @@ graph TD
     WIRE -- "domestic payments/VRP initiation" --> PAY
 ```
 
-Read [`DESIGN.md`](https://github.com/OpenFin8/openfin8-uk/blob/main/DESIGN.md) (OBARCH-5) for the full design: the
+Read [`DESIGN.md`](https://github.com/OpenFin8/openfin8-uk/blob/main/DESIGN.md) for the full design: the
 intent consent state machine, the FAPI ceremony steps, the envelope
 codec rules, the JWS signing profile, and the OB Directory trust
 integration.
 
-## Status
-
-**The OB surface is implemented** (OBARCH-5, backlog UK-1..UK-9):
+## The served surface
 
 - the **intent-based consent model** (`src/consent.rs`) - the
   client-credentials staging into `intent_payload`, the OB four-state
@@ -109,8 +107,7 @@ integration.
   and VRP consent staging (the control parameters persisted on the
   consent), the payment submissions with the `x-idempotency-key`
   discipline and the JWS gate, the **VRP control-parameter
-  enforcement at initiation time** (UK invariant 4), and the honest
-  file-payments 404 (the decided follow-on);
+  enforcement at initiation time**, and the honest file-payments 404;
 - the **cbpii surfaces + the OBL event notifications** (`src/cbpii.rs`)
   - the funds-confirmation consent + check (the Ledger balance
   verdict), and the webhook + aggregated-polling event routes;
@@ -119,17 +116,17 @@ integration.
   envelope assertions, the revocation→400 verdict, the JWS +
   idempotency gates, and the honest 404s;
 - the **published spec + drift guard** - the vendored OBL-notice
-  spec (17 ops under `/open-banking/v3.1/*`), the OAPEC
-  router↔spec drift guard both directions, and the site's UK dossier
-  (the product pages + the API tree).
+  spec (17 ops under `/open-banking/v3.1/*`), the router↔spec drift
+  guard both directions, and the site's UK dossier (the product
+  pages + the API tree).
 
 The schema is `openfin8_uk` (the intent-staged consents + the VRP
 control parameters + the recipient registry + the provider catalog;
-FORCE-RLS env-pinned). Remaining: the browser-driven FAPI PSU
-authorization page (the recipient-app story), the resolved
+FORCE-RLS env-pinned). The deferred surfaces: the browser-driven FAPI
+PSU authorization page (the recipient-app story), the resolved
 signing-key material (the production PS256 path over the dev
 fixture), the real OB Directory JWKS fetch (the dev fixture stands
-in), and the file-payments family as it ships.
+in), and the file-payments family.
 
 ## Development
 

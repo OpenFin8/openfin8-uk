@@ -5,13 +5,12 @@
 
 //! OpenAPI spec for OpenFin8:UK.
 //!
-//! OBARCH-2 - the VENDORED case: the Open Banking Standard is
+//! The VENDORED case: the Open Banking Standard is
 //! published by Open Banking Limited under the MIT Open Licence
 //! (openbanking.org.uk/open-licence), so this adapter MAY carry the
 //! OB resource paths in its published spec **with the OBL copyright
-//! notice preserved**. The utoipa aggregate below therefore grows
-//! to include the OB resource annotations as the wire lands
-//! (OBARCH-5), and the OBL notice travels in the spec's info block.
+//! notice preserved**. The utoipa aggregate carries the OB resource
+//! annotations, and the OBL notice travels in the spec's info block.
 //!
 //! The drift guard (`tests/openapi_publication.rs`) asserts the
 //! notice is present and that OB paths conform to the versioned
@@ -23,7 +22,7 @@ use utoipa::OpenApi;
 /// The OBL MIT Open Licence notice that MUST accompany any copied
 /// Open Banking Standard material (spec paths derived from the R/W
 /// API). Rendered into the published spec's info block - wired into
-/// the utoipa description when the OB paths land (OBARCH-5); the
+/// the utoipa description when the OB paths land); the
 /// drift guard tests against the marker string.
 #[allow(dead_code)]
 pub const OBL_OPEN_LICENCE_NOTICE: &str = "The Open Banking Standard \

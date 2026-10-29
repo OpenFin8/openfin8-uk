@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the OpenFin8:UK
 // SPDX-License-Identifier: Apache-2.0
 
-//! OpenAPI publication drift guard (OBARCH-2 - the VENDORED case).
+//! OpenAPI publication drift guard (the VENDORED case).
 //!
 //! The Open Banking Standard is published by Open Banking Limited
 //! under the MIT Open Licence, so the published spec MAY carry the

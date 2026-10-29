@@ -3,8 +3,7 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the OpenFin8:UK
 // SPDX-License-Identifier: Apache-2.0
 
-//! The intent-based consent model (OBARCH-5 - UK DESIGN.md §3; backlog
-//! UK-2).
+//! The intent-based consent model (DESIGN.md §3).
 //!
 //! Unlike the FDX single-grant shape, OBL stages an **intent**: the TPP
 //! creates the consent resource with a `client_credentials` token (TPP
@@ -707,7 +706,7 @@ pub async fn require_authorised_consent(
     Ok(permissions)
 }
 
-/// The staged-intent expiry sweep (UK-2: OBL - un-authorized intents
+/// The staged-intent expiry sweep (OBL - un-authorized intents
 /// die at 24h; the cron proxy-calls this endpoint on the declared
 /// schedule). The expired intents move `AwaitingAuthorisation →
 /// Rejected` through the pure table (terminal; a PSU arriving late

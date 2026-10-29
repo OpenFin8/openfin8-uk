@@ -3,8 +3,8 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the OpenFin8:UK
 // SPDX-License-Identifier: Apache-2.0
 
-//! The OB envelope codec + the OBL error semantics (OBARCH-5 - UK
-//! DESIGN.md §5; backlog UK-4).
+//! The OB envelope codec + the OBL error semantics- UK
+//! DESIGN.md §5; ).
 //!
 //! **The envelope** (`{Data, Risk, Links, Meta}`): responses wrap the
 //! handler's document in the OB envelope with absolute `Links.Self` +

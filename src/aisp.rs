@@ -3,8 +3,8 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the OpenFin8:UK
 // SPDX-License-Identifier: Apache-2.0
 
-//! The AIS resource surfaces (OBARCH-5 - UK DESIGN.md §5 the aisp family
-//! row; backlog UK-5).
+//! The AIS resource surfaces- UK DESIGN.md §5 the aisp family
+//! row; ).
 //!
 //! `GET accounts`, `accounts/{id}`, `/balances`, `/transactions`,
 //! `/beneficiaries`, `/direct-debits`, `/standing-orders`, `/statements`

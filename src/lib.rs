@@ -9,7 +9,7 @@
 //! machinery in `ceremony.rs`; the OB envelope + error model in
 //! `envelope.rs`; the aisp/pisp/cbpii surfaces in their modules; the
 //! routes in `router.rs`; the registration data in `registration.rs` -
-//! see DESIGN.md (OBARCH-5).
+//! see DESIGN.md).
 
 pub mod aisp;
 pub mod cbpii;

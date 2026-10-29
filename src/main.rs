@@ -7,21 +7,17 @@
 //! (OBL) Read/Write API ASPSP surface (v3.1.x, v4.0.1 configurable),
 //! serving AISPs, PISPs, and CBPIIs over
 //! `/open-banking/v{maj}.{min}/{aisp|pisp|cbpii}/*`. See
-//! `DESIGN.md` (OBARCH-5).
+//! `DESIGN.md`.
 //!
 //! This service embeds `openfin8-core` (the jurisdiction-agnostic
-//! kernel - OBARCH-1) and supplies the UK OBIE profile, the FAPI 1
+//! kernel) and supplies the UK OBIE profile, the FAPI 1
 //! Advanced ceremony (client_credentials intent staging, hybrid flow
 //! with request objects, detached JWS signing), and the OB resource
-//! router with the `{Data, Links, Meta}` envelope codec.
+//! router with the `{Data, Links, Meta}` envelope codec. See
+//! `DESIGN.md` §3-§6 for the consent model, the ceremony, and the
+//! wire surface.
 //!
-//! Skeleton - the OBARCH-1 core extraction lands first; this binary
-//! then takes the OB wire handlers, the intent-based consent model
-//! over core's `awaiting_authorization` state, and its registration
-//! data. Auth gains the FAPI 1 Advanced profile flag alongside
-//! (sequenced with this adapter).
-//!
-//! Spec publication (OBARCH-2) is the VENDORED case: the Open Banking
+//! Spec publication is the VENDORED case: the Open Banking
 //! Standard is published under the MIT Open Licence, so the published
 //! `docs/openapi.json` MAY carry the OB resource paths WITH the OBL
 //! copyright notice preserved (see `src/openapi.rs`).

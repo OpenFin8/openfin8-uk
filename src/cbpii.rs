@@ -3,8 +3,8 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the OpenFin8:UK
 // SPDX-License-Identifier: Apache-2.0
 
-//! The CBPII surfaces + the OBL event notifications (OBARCH-5 - UK
-//! DESIGN.md §5 the cbpii + event-notification rows; backlog UK-7).
+//! The CBPII surfaces + the OBL event notifications- UK
+//! DESIGN.md §5 the cbpii + event-notification rows; ).
 //!
 //! `POST funds-confirmation-consents` + `POST funds-confirmations` (the
 //! CBPII role; the funds check against the Ledger balances - the EU

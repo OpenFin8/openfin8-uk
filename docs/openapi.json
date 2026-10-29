@@ -378,7 +378,7 @@
         "tags": [
           "internal"
         ],
-        "summary": "The staged-intent expiry sweep (UK-2: OBL - un-authorized intents\ndie at 24h; the cron proxy-calls this endpoint on the declared\nschedule). The expired intents move `AwaitingAuthorisation →\nRejected` through the pure table (terminal; a PSU arriving late\ncannot authorize a dead intent).",
+        "summary": "The staged-intent expiry sweep (OBL - un-authorized intents\ndie at 24h; the cron proxy-calls this endpoint on the declared\nschedule). The expired intents move `AwaitingAuthorisation →\nRejected` through the pure table (terminal; a PSU arriving late\ncannot authorize a dead intent).",
         "operationId": "sweep_staged_intents",
         "responses": {
           "204": {

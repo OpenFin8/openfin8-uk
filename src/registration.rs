@@ -3,14 +3,14 @@
 // SPDX-FileCopyrightText: Copyright Contributors to the OpenFin8:UK
 // SPDX-License-Identifier: Apache-2.0
 
-//! Service self-registration data for OpenFin8:UK (OBARCH-5).
+//! Service self-registration data for OpenFin8:UK).
 //! Output via `--print-registration` flag. See `sentin8/design/sentin8-service-self-registration-design.md`.
 //!
 //! The shape follows the `openfin8-ca`/`openfin8-eu` registrations (the
 //! per-jurisdiction identity): PG role `openfin8_uk_service` on the
 //! `openfin8` vertical database, the UK scope vocabulary
 //! `openfin8:uk:*`, the scope-mirror policy set seeded by `vertical
-//! enroll`, and the staged-intent expiry schedule (24h - UK-1).
+//! enroll`, and the staged-intent expiry schedule (24h - OBL).
 
 use sentin8::registration::{
     AdminScope, AdminUi, AdminUiPage, AuditFinding, ErrorCode, M2mGrant, PgRole, PolicySetDecl,
@@ -197,7 +197,7 @@ const SERVICE_ACTIONS: &[ServiceActionEntry] = &[ServiceActionEntry {
 }];
 
 /// The staged-intent expiry sweep (OBL: un-authorized intents die at
-/// 24h - the declarative schedule; UK-1/UK-2). The sweep proxy-calls
+/// 24h - the declarative schedule). The sweep proxy-calls
 /// the adapter's internal expiry endpoint on fire.
 const SCHEDULES: &[ScheduleDecl] = &[ScheduleDecl {
     schedule_type: "uk-staged-intent-expiry",

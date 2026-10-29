@@ -1,30 +1,12 @@
 # openfin8-uk - Detailed Design Document
 
-> Status: **IMPLEMENTED (first full pass)** - the UK open-banking
-> Account Servicing Payment Services Provider (ASPSP) service
-> (OBARCH-5), implementing the Open Banking Limited (OBL) Read/Write
-> API standard (v3.1.x line - 3.1.11 the initial target, v4.0.1 a
-> configuration option). The first adapter with a non-FDX wire:
-> new ceremony profile, new envelope, request signing, and the
-> intent-based consent model. Depends on: `openfin8-core` (OBARCH-1;
-> `Profile::united_kingdom()` on tag `openfin8-v0.1.3`).
->
-> **Landed (backlog UK-1..UK-9)**: the full OB surface - the intent
-> consent model (`src/consent.rs`: the client-credentials staging into
-> `intent_payload`, the OB four-state machine, the authorization
-> observation, the revocation→400 rule, the 24h staged-intent sweep),
-> the FAPI/JWS machinery (`src/ceremony.rs`: the OB Directory JOSE
-> claims, the fail-closed verdicts, the DCR/SSA body, the hybrid
-> request object), the envelope + error model (`src/envelope.rs`:
-> the `{Data, Risk, Links, Meta}` codec, the conditional-field
-> exclusion, `OBErrorResponse1`, the OBL error rules), the aisp/pisp/
-> cbpii surfaces + VRP control-parameter enforcement, the OBL event
-> notifications, the e2e journey, the published spec (17 ops) + the
-> drift guard + the site dossier. **Remaining**: the browser FAPI PSU
-> authorization page (the recipient-app story), the resolved
-> signing-key material + the real Directory JWKS (the production
-> trust halves over the dev fixtures), and the file-payments family
-> as it ships.
+> The UK open-banking Account Servicing Payment Services Provider
+> (ASPSP) service, implementing the Open Banking Limited (OBL)
+> Read/Write API standard (v3.1.x line - 3.1.11 the initial target,
+> v4.0.1 a configuration option). The first adapter with a non-FDX
+> wire: its own ceremony profile, its own envelope, request signing,
+> and the intent-based consent model. Depends on: `openfin8-core`
+> (`Profile::united_kingdom()`).
 
 ## 1. Scope & Context
 
@@ -43,19 +25,19 @@ impl, and the OB wire router.
 map 1:1 to OB's per-Permission consents), the recipient registry
 (the OB client-per-ASPSP DCR cache), CSDF (OB permissions are a
 vocabulary over the same filter engine), the notification worker,
-admin pages, audit, and Flow step profile - all per OBARCH-1.
+admin pages, audit, and the Flow step profile - all shared with the other adapters.
 
 **What is genuinely new here** (vs the US/CA adapters):
 
 | Concern | UK delta | Weight |
 |---|---|---|
-| Consent model | Intent-based: TPP stages a consent resource via `client_credentials` grant; PSU authorizes the intent at the ASPSP; token bound to intent-id. Core's `awaiting_authorization` state + `intent_payload` column (OBARCH-1 §3) were designed for this | medium |
+| Consent model | Intent-based: TPP stages a consent resource via `client_credentials` grant; PSU authorizes the intent at the ASPSP; token bound to intent-id. Core's `awaiting_authorization` state + `intent_payload` column carries it | medium |
 | Ceremony | FAPI 1 Advanced: hybrid flow (`code id_token`), request-object JWTs, PAR; **detached JWS request signing** (`x-jws-signature`, PS256, RFC 7515 Appendix F + RFC 7797) | large |
 | Envelope | `{Data, Risk, Links, Meta}` response wrapping; conditional-field exclusion semantics; 400-vs-404 rules; pagination links | medium |
 | Directory trust | OB Directory: TPP org-id/software-statement-id in JWS `iss`/`tan` claims; software statement assertions in DCR | medium |
 | Payments | OB domestic payments (incl. VRP - variable recurring payments - consent + sweep), file payments (deferred), the `x-idempotency-key` discipline | medium |
 | Event notification | OB Event Notification API (JWS-signed event payloads; `aggregated-polling` + webhook modes) layered on core's worker | small |
-| Spec publication | **Vendored** - OBL specs are MIT Open Licensed; the UK swagger MAY be carried with the OBL notice (OBARCH-2) | small |
+| Spec publication | **Vendored** - OBL specs are MIT Open Licensed; the UK swagger MAY be carried with the OBL notice | small |
 
 **Regulatory posture.** UK open banking is mandated (CMA order for
 the CMA9 + PSD2/FCA rules for all ASPSPs): this service is the
@@ -136,7 +118,7 @@ see §8 open question on generalizing this).
 
 ## 3. The Consent Model (intent-based)
 
-The core state machine (OBARCH-1 §3) covers the UK phases:
+The core state machine covers the UK phases:
 
 ```mermaid
 stateDiagram-v2
@@ -266,7 +248,7 @@ discovery surface. Core's discovery pages render the served version
   `sentin8-secrets://` reference, PS256), plus the platform
   standard set; per-env overrides via `sys.services.config`.
 
-## 7. Spec Publication (OBARCH-2) - the vendored case
+## 7. Spec Publication - the vendored case
 
 `SpecPublicationPolicy::VendoredMitObl`: OBL publishes the R/W API
 specifications under the MIT Open Licence (openbanking.org.uk
