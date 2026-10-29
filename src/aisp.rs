@@ -10,7 +10,7 @@
 //! `/beneficiaries`, `/direct-debits`, `/standing-orders`, `/statements`
 //! (+ `/statements/{id}/file` 302 → Storage signed URLs - the CA
 //! precedent), `/scheduled-payments`, `/offers`, `/parties`, `/products`
-//! — behind the intent-bound consent chokepoint (the OB permissions as a
+//! - behind the intent-bound consent chokepoint (the OB permissions as a
 //! CSDF vocabulary; `ReadTransactionsDebits/Credits` semantics via the
 //! permission set). The reads proxy to Bank8:Ledger through the public
 //! API + the `bank8::` contracts ONLY (OBVERT). Out-of-scope resources

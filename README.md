@@ -134,7 +134,7 @@ in), and the file-payments family.
 make help     # the available targets
 make build    # cargo build
 make test     # cargo test
-make lint     # cargo fmt -- --check
+make lint     # cargo fmt -check
 make start    # infra + trimmed boot if captain is down
 make status   # fleet rows for openfin8:uk
 make enroll   # register this repo (composable enrollment, RS §6)
