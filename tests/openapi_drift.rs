@@ -62,7 +62,7 @@ fn spec_covers_every_served_route_and_vice_versa() {
     // + the aisp reads + the pisp submissions + cbpii + the events).
     assert!(
         spec.len() >= 16,
-        "spec floor: expected >= 16 ops for the landed OB surface, got {}",
+        "spec floor: expected >= 16 ops for the OB surface, got {}",
         spec.len()
     );
 }
