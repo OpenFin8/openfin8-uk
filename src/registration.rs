@@ -52,7 +52,7 @@ const M2M_GRANTS: &[M2mGrant] = &[
         scopes: &["sentin8:sys:audit:write"],
     },
     M2mGrant {
-        workload: "openfin8-uk-policy",
+        workload: "openfin8:uk-policy",
         scopes: &["sentin8:bus:consume", "sentin8:stat:measure"],
     },
     M2mGrant {
@@ -180,6 +180,33 @@ const RELATIONS: &[RelationDecl] = &[];
 
 const SQL_1_INIT: &str = include_str!("../sql/init.sql");
 
+// Role-grant convergence (F1 - §4.3e; mirrors the ca/us v1 grant block):
+// the v1 init migration predated the per-service grant block, so the
+// service's own role held NO schema/table grants (the search_path also
+// defaulted to the enroll's leaf name, not this real schema). Idempotent -
+// safe on fresh and drifted databases alike.
+const SQL_3_ROLE_GRANTS: &str = r#"
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'openfin8_uk_service') THEN
+        ALTER ROLE openfin8_uk_service SET search_path = openfin8_uk, public;
+        GRANT USAGE ON SCHEMA openfin8_uk TO openfin8_uk_service;
+        GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA openfin8_uk
+            TO openfin8_uk_service;
+        GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA openfin8_uk
+            TO openfin8_uk_service;
+    END IF;
+END $$;
+"#;
+
+// Journal-shape convergence: the v1 journal predated the SDK's `action`
+// column (shell/audit §6.8 INSERT contract) - backfill it idempotently for
+// drifted clusters (fresh clusters get it at v1 init).
+const SQL_4_JOURNAL_ACTION: &str = r#"
+ALTER TABLE openfin8_uk.audit_journal
+    ADD COLUMN IF NOT EXISTS action TEXT NOT NULL DEFAULT 'unknown';
+"#;
+
 const AUDIT_FINDINGS: &[AuditFinding] = &[
     AuditFinding {
         finding: "Integration credentials stored without a secret reference",
@@ -258,11 +285,23 @@ pub fn print(section: Option<String>) -> anyhow::Result<()> {
             service_flag: "openfin8-uk",
             pages: ADMIN_UI_PAGES,
         }),
-        sql_migrations: vec![SqlMigration {
-            version: 1,
-            name: "init",
-            sql: SQL_1_INIT,
-        }],
+        sql_migrations: vec![
+            SqlMigration {
+                version: 1,
+                name: "init",
+                sql: SQL_1_INIT,
+            },
+            SqlMigration {
+                version: 3,
+                name: "role_grants",
+                sql: SQL_3_ROLE_GRANTS,
+            },
+            SqlMigration {
+                version: 4,
+                name: "journal_action_alignment",
+                sql: SQL_4_JOURNAL_ACTION,
+            },
+        ],
         audit_findings: Some(AUDIT_FINDINGS),
         service_actions: Some(SERVICE_ACTIONS),
         m2m_grants: Some(M2M_GRANTS),

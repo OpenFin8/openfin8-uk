@@ -174,6 +174,7 @@ CREATE INDEX IF NOT EXISTS idx_openfin8_uk_outbox_unrelayed
 CREATE TABLE IF NOT EXISTS openfin8_uk.audit_journal (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     env_id          UUID NOT NULL,
+    action          TEXT NOT NULL DEFAULT 'unknown',
     target_resource_type  TEXT,
     target_resource_id    TEXT,
     actor_user_id         TEXT,
@@ -236,3 +237,26 @@ DROP POLICY IF EXISTS provider_profiles_select ON openfin8_uk.provider_profiles;
 DROP POLICY IF EXISTS provider_profiles_insert ON openfin8_uk.provider_profiles;
 DROP POLICY IF EXISTS provider_profiles_update ON openfin8_uk.provider_profiles;
 DROP POLICY IF EXISTS provider_profiles_delete ON openfin8_uk.provider_profiles;
+
+-- Per-service role grants + search_path (F1 - §4.3e):
+-- The service connects via its own PostgreSQL role (openfin8_uk_service,
+-- created by `sentin8-cli vertical enroll` from this service's
+-- --print-registration --section=pg_roles). RLS only ENFORCES when the
+-- service does NOT bypass it. These grants give the role table access; the
+-- RLS policies scope the rows.
+-- The search_path puts the service's OWN schema FIRST (outbox/audit_journal
+-- resolution for the shell's relay + journal pusher; unqualified
+-- openfin8_uk_* domain tables resolve here too), then public (RLS helpers).
+-- The `vertical enroll` never-clobber block preserves this role-level
+-- setting.
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'openfin8_uk_service') THEN
+        ALTER ROLE openfin8_uk_service SET search_path = openfin8_uk, public;
+        GRANT USAGE ON SCHEMA openfin8_uk TO openfin8_uk_service;
+        GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA openfin8_uk
+            TO openfin8_uk_service;
+        GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA openfin8_uk
+            TO openfin8_uk_service;
+    END IF;
+END $$;
