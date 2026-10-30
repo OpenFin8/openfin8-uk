@@ -29,5 +29,5 @@ runtime - the served surface is configured via
 For the FDX (US/CA) adapters the policy is the opposite: the FDX
 API specification is licensed under the FDX API License Agreement
 and must never be committed - see the
-[`bank8-open-us`](../bank8-open-us) and
-[`bank8-open-ca`](../bank8-open-ca) repositories.
+[`openfin8-us`](https://github.com/OpenFin8/openfin8-us) and
+[`openfin8-ca`](https://github.com/OpenFin8/openfin8-ca) repositories.

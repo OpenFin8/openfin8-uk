@@ -31,8 +31,8 @@ profile, the FAPI 1 Advanced ceremony (client_credentials intent
 staging, hybrid flow with request objects binding the
 `openbanking-intent-id`, PS256 detached JWS with the OB Directory
 JOSE claims), and the OB resource router. The US and Canadian
-adapters ([`bank8-open-us`](https://github.com/OpenFin8/openfin8-us),
-[`bank8-open-ca`](https://github.com/OpenFin8/openfin8-ca)) follow the same contract.
+adapters ([`openfin8-us`](https://github.com/OpenFin8/openfin8-us),
+[`openfin8-ca`](https://github.com/OpenFin8/openfin8-ca)) follow the same contract.
 
 **Licensing posture**: the Open Banking Standard is published by
 Open Banking Limited under the MIT Open Licence - unlike the FDX
