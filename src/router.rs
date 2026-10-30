@@ -17,13 +17,26 @@
 //! `openfin8-uk-payments`, CERTFREE-8V) minted best-effort; a missing
 //! transport degrades loudly at the handler gate (503), never silently.
 
+use axum::Json;
 use axum::routing::{get, post};
+use openfin8_core::dtos::ServiceHealth;
 use openfin8_core::profile::Profile;
 
 use crate::aisp;
 use crate::cbpii;
 use crate::consent::{self, AppState};
 use crate::pisp;
+
+/// Liveness/build identity (the shell's default health is suppressed —
+/// `with_own_health`; the captain probes the registration's health_path).
+async fn health() -> Json<ServiceHealth> {
+    Json(ServiceHealth {
+        status: "ok".into(),
+        service: "openfin8:uk".into(),
+        version: sentin8::build_info::id().into(),
+        build: sentin8::build_info::build_hash().into(),
+    })
+}
 
 /// Build a cert-presenting HTTP transport for `workload` (CERTFREE-4V,
 /// the kernel `server.rs` precedent).
@@ -112,6 +125,7 @@ pub fn routes(router: axum::Router<AppState>, state: AppState) -> axum::Router<A
     let pfx = state.provider_prefix.clone();
     let router = mount_table(router, &pfx);
     router
+        .route("/v1/health", get(health))
         .route(
             "/v1/internal/sweep/staged-intents",
             post(consent::sweep_staged_intents),
