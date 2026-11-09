@@ -28,7 +28,7 @@ sentin8 = { git = "https://github.com/Sentin8/sentin8-sdk", tag = "sdk-v0.6.19" 
 bank8 = { git = "https://github.com/Bank8-dev/bank8-sdk", tag = "bank8-v0.5.8" }
 # The open-banking kernel: consent ledger, recipient registry,
 # CSDF, notifications, admin, the adapter traits, and the shared FDX wire.
-openfin8-core = { git = "https://github.com/OpenFin8/openfin8-core", tag = "core-sdk-v0.1.4" }
+openfin8-core = { git = "https://github.com/OpenFin8/openfin8-core", tag = "core-sdk-v0.1.14" }
 
 axum = { version = "0.8", features = ["macros"] }
 tokio = { version = "1", features = ["full"] }
