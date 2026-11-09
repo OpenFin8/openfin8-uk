@@ -32,20 +32,31 @@ use crate::ceremony::{self, JwsVerdict};
 use crate::consent::{self, AppState};
 use crate::envelope::{self, ObErrorResponse};
 
+/// Read the caller's `x-ob-iat` (the JOSE iat the signature covers - the
+/// caller declares it in the header; the fixture verification signs over
+/// the caller's value, never a server-side now()).
+fn ob_iat_from(headers: &axum::http::HeaderMap) -> i64 {
+    headers
+        .get("x-ob-iat")
+        .and_then(|v| v.to_str().ok())
+        .and_then(|s| s.parse().ok())
+        .unwrap_or_else(|| chrono::Utc::now().timestamp())
+}
+
 // ── Wire DTOs ──────────────────────────────────────────────────────────
 
 /// `POST .../pisp/domestic-payment-consents` request body (the OB
 /// consent body - the codec unwraps `Data`/`Risk`).
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct DomesticPaymentConsentRequest {
-    #[serde(default)]
+    #[serde(rename = "Permissions", default)]
     pub permissions: Vec<String>,
     /// The initiation document (the OB OBWriteDomesticConsent -
     /// genuinely freeform: the OBInitiation family).
-    #[serde(default)]
+    #[serde(rename = "Initiation", default)]
     pub initiation: JsonValue,
     /// The risk document (the passthrough).
-    #[serde(default)]
+    #[serde(rename = "Risk", default)]
     pub risk: JsonValue,
 }
 
@@ -53,14 +64,14 @@ pub struct DomesticPaymentConsentRequest {
 /// parameters ride the consent - UK invariant 4).
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct DomesticVrpConsentRequest {
-    #[serde(default)]
+    #[serde(rename = "Permissions", default)]
     pub permissions: Vec<String>,
-    #[serde(default)]
+    #[serde(rename = "Initiation", default)]
     pub initiation: JsonValue,
     /// The control parameters (the OBL ControlParameters member).
     #[serde(rename = "ControlParameters", default)]
     pub control_parameters: VrpControlParameters,
-    #[serde(default)]
+    #[serde(rename = "Risk", default)]
     pub risk: JsonValue,
 }
 
@@ -86,10 +97,10 @@ pub struct DomesticPaymentRequest {
     /// OB ConsentId - the token binding's join key).
     #[serde(rename = "ConsentId", default)]
     pub consent_id: Option<Uuid>,
-    /// The initiation document.
-    #[serde(default)]
+    /// The initiation document (the OB wire name `Initiation`).
+    #[serde(rename = "Initiation", default)]
     pub initiation: JsonValue,
-    #[serde(default)]
+    #[serde(rename = "Risk", default)]
     pub risk: JsonValue,
 }
 
@@ -101,6 +112,7 @@ pub struct PaymentResult {
     pub domestic_payment_id: String,
     #[serde(rename = "ConsentId")]
     pub consent_id: Option<Uuid>,
+    #[serde(rename = "Status")]
     pub status: String,
     #[serde(rename = "CreationDateTime")]
     pub creation_date_time: chrono::DateTime<chrono::Utc>,
@@ -209,7 +221,7 @@ pub async fn stage_domestic_payment_consent(
         .get("x-ob-iss")
         .and_then(|v| v.to_str().ok())
         .unwrap_or("org-x/software-y");
-    let ob_iat = chrono::Utc::now().timestamp();
+    let ob_iat = ob_iat_from(&headers);
     let verdict = ceremony::verify_fixture_signature(
         sig, ob_iss, ob_iat, &canonical,
         true, // the Directory-trust state (fail-closed when false)
@@ -341,7 +353,7 @@ pub async fn stage_domestic_vrp_consent(
     let verdict = ceremony::verify_fixture_signature(
         sig,
         ob_iss,
-        chrono::Utc::now().timestamp(),
+        ob_iat_from(&headers),
         &canonical,
         true,
     );
@@ -484,7 +496,7 @@ pub async fn create_domestic_payment(
     let verdict = ceremony::verify_fixture_signature(
         sig,
         ob_iss,
-        chrono::Utc::now().timestamp(),
+        ob_iat_from(&headers),
         &canonical,
         true,
     );
@@ -701,7 +713,15 @@ async fn load_vrp_controls(
     state: &AppState,
     consent_id: Uuid,
 ) -> Result<Option<VrpControlParameters>, String> {
-    let mut conn = state.pool.acquire().await.map_err(|e| e.to_string())?;
+    // Same-transaction discipline: the tenant context is transaction-local
+    // (set_config(..., true)) - begin() + context + query on one tx, else
+    // FORCE RLS hides the rows (the read_consent precedent).
+    let mut conn = state
+        .pool
+        .begin()
+        .await
+        .map_err(|e| e.to_string())?;
+    consent::set_tenant_context(&mut conn, state.env_id()).await;
     let row = sqlx::query(
         "SELECT max_single_amount, period_unit FROM openfin8_uk.vrp_control_parameters \
           WHERE consent_id = $1",

@@ -28,7 +28,7 @@ use crate::envelope::{self, ObErrorResponse};
 /// `POST .../cbpii/funds-confirmation-consents` request body.
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct FundsConfirmationConsentRequest {
-    #[serde(default)]
+    #[serde(rename = "Permissions", default)]
     pub permissions: Vec<String>,
     /// The debtor account document (the OB DebtorAccount).
     #[serde(rename = "DebtorAccount", default)]
@@ -41,8 +41,9 @@ pub struct FundsConfirmationRequest {
     /// The funds-confirmation consent id.
     #[serde(rename = "ConsentId")]
     pub consent_id: Uuid,
-    /// The instruction document (the amount to confirm).
-    #[serde(default)]
+    /// The instruction document (the amount to confirm - the OB wire
+    /// name `InstructedAmount` rides inside; the member is freeform).
+    #[serde(rename = "InstructedAmount", default)]
     pub instruction: JsonValue,
 }
 

@@ -44,6 +44,22 @@ pub const OB_REJECTED: &str = "rejected";
 pub const OB_CONSUMED: &str = "consumed";
 pub const OB_REVOKED: &str = "revoked";
 
+/// The OB WIRE state spellings (OBL: the response document renders
+/// `AwaitingAuthorisation` / `Authorised` / `Rejected` / `Consumed` /
+/// `Revoked` - PascalCase, the UK spelling with the `s`); the kernel
+/// states stay snake_case in the DB and the state machines - only the
+/// wire document renders the OB spelling.
+pub fn ob_wire_status(kernel_status: &str) -> String {
+    match kernel_status {
+        OB_AWAITING => "AwaitingAuthorisation".into(),
+        OB_AUTHORISED => "Authorised".into(),
+        OB_REJECTED => "Rejected".into(),
+        OB_CONSUMED => "Consumed".into(),
+        OB_REVOKED => "Revoked".into(),
+        other => other.to_string(),
+    }
+}
+
 /// The OB roles the consent serves.
 pub const ROLE_AISP: &str = "aisp";
 pub const ROLE_PISP: &str = "pisp";
@@ -163,8 +179,10 @@ pub fn validate_permissions(permissions: &[String]) -> Result<(), String> {
 /// stages.
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct StageConsentRequest {
-    /// The OB Permissions requested.
-    #[serde(default)]
+    /// The OB Permissions requested (the OB wire name is `Permissions` -
+    /// PascalCase; serde matches field names case-sensitively, so the
+    /// rename is mandatory or the member silently defaults to empty).
+    #[serde(rename = "Permissions", default)]
     pub permissions: Vec<String>,
     /// The ExpirationDateTime of the consent (ISO 8601; absent = the
     /// default window).
@@ -191,12 +209,15 @@ pub struct ConsentResponse {
     /// The creation timestamp.
     #[serde(rename = "CreationDateTime")]
     pub creation_date_time: chrono::DateTime<chrono::Utc>,
-    /// The OB consent status.
+    /// The OB consent status (the OB wire spelling: `AwaitingAuthorisation`,
+    /// `Authorised`, ... - the kernel states render over it).
+    #[serde(rename = "Status")]
     pub status: String,
     /// The OB status-update timestamp.
     #[serde(rename = "StatusUpdateDateTime")]
     pub status_update_date_time: chrono::DateTime<chrono::Utc>,
     /// The OB Permissions granted.
+    #[serde(rename = "Permissions")]
     pub permissions: Vec<String>,
     /// The ExpirationDateTime (absent for the default window).
     #[serde(rename = "ExpirationDateTime", skip_serializing_if = "Option::is_none")]
@@ -487,7 +508,7 @@ pub async fn stage_consent(
         ConsentResponse {
             consent_id,
             creation_date_time: created_at,
-            status: OB_AWAITING.to_string(),
+            status: ob_wire_status(OB_AWAITING),
             status_update_date_time: created_at,
             permissions: req.permissions.clone(),
             expiration_date_time: expiration,
@@ -504,11 +525,17 @@ pub async fn read_consent(
     consent_id: Uuid,
 ) -> Result<ConsentResponse, (StatusCode, String)> {
     let a = authorize(state, headers, "consents:read").await?;
+    // Same-transaction discipline: the tenant context is
+    // TRANSACTION-LOCAL (`set_config(..., true)` inside
+    // sentin8_set_tenant_context) - on a bare autocommit connection it
+    // evaporates at the first statement's implicit commit and FORCE RLS
+    // hides every row (the CA consent_filter precedent).
     let mut conn = state
         .pool
-        .acquire()
+        .begin()
         .await
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    set_tenant_context(&mut conn, a.env_id()).await;
     let row = sqlx::query(
         r#"SELECT id, status, permissions, expires_at, created_at, updated_at,
                   intent_payload->>'transaction_from_date_time' AS tx_from,
@@ -534,10 +561,23 @@ pub async fn read_consent(
         .get::<Option<String>, _>("tx_to")
         .and_then(|s| chrono::DateTime::parse_from_rfc3339(&s).ok())
         .map(|d| d.with_timezone(&chrono::Utc));
+    // The OBL read rule: the consent RESOURCE GET renders the staged
+    // intent (AwaitingAuthorisation included - the TPP checks its
+    // status); only the TERMINAL revoked state answers 400 (the dead
+    // consent: the resource IS known, it is dead - never a bare 404 and
+    // never the dead document). The data-call chokepoint
+    // (read_verdict) stays the stricter Authorised-only rule.
+    let kernel_status: String = row.get("status");
+    if kernel_status == OB_REVOKED {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            "the consent was revoked - subsequent reads answer 400 (the dead consent)".into(),
+        ));
+    }
     Ok(ConsentResponse {
         consent_id,
         creation_date_time: created_at,
-        status: row.get("status"),
+        status: ob_wire_status(&kernel_status),
         status_update_date_time: updated_at,
         permissions: row.get("permissions"),
         expiration_date_time: row.get("expires_at"),
@@ -663,12 +703,16 @@ pub async fn require_authorised_consent(
     consent_id: Uuid,
     required_permission: Option<&str>,
 ) -> Result<Vec<String>, (StatusCode, String)> {
-    authorize(state, headers, "consents:read").await?;
+    let a = authorize(state, headers, "consents:read").await?;
+    // Same-transaction discipline (read_consent precedent): the tenant
+    // context is transaction-local - a bare autocommit connection loses
+    // it and FORCE RLS answers with zero rows.
     let mut conn = state
         .pool
-        .acquire()
+        .begin()
         .await
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    set_tenant_context(&mut conn, a.env_id()).await;
     let row = sqlx::query(
         "SELECT status, permissions, expires_at FROM openfin8_uk.consents WHERE id = $1",
     )
@@ -781,10 +825,23 @@ pub async fn stage_aisp_consent(
         serde_json::from_value(data).map_err(|e| (StatusCode::BAD_REQUEST, e.to_string()))?;
     let (code, resp) =
         stage_consent(&state, &headers, ROLE_AISP, RESOURCE_ACCOUNT_ACCESS, &req).await?;
-    let mut doc = serde_json::to_value(resp).unwrap_or_default();
-    // The OB wire: the staged consent's response shape.
-    doc["Risk"] = req.risk.clone();
-    Ok((code, Json(doc)))
+    let doc = serde_json::to_value(resp).unwrap_or_default();
+    // The OB wire: the enveloped staged consent (`Data`/`Risk`/
+    // `Links`/`Meta` - every OBL response carries the envelope).
+    let self_url = format!(
+        "{}/aisp/account-access-consents/{}",
+        state.provider_prefix,
+        doc["ConsentId"].as_str().unwrap_or_default()
+    );
+    Ok((
+        code,
+        Json(crate::envelope::wrap_response(
+            crate::envelope::exclude_conditionals(&doc),
+            &self_url,
+            1,
+            None,
+        )),
+    ))
 }
 
 /// `GET .../aisp/account-access-consents/{consentId}` - read the staged
@@ -805,9 +862,18 @@ pub async fn get_aisp_consent(
     Path(consent_id): Path<Uuid>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, String)> {
     let resp = read_consent(&state, &headers, consent_id).await?;
-    let mut doc = serde_json::to_value(resp).unwrap_or_default();
-    doc["Risk"] = serde_json::json!({});
-    Ok(Json(doc))
+    let doc = serde_json::to_value(resp).unwrap_or_default();
+    // The OB wire: the enveloped consent document.
+    let self_url = format!(
+        "{}/aisp/account-access-consents/{consent_id}",
+        state.provider_prefix
+    );
+    Ok(Json(crate::envelope::wrap_response(
+        crate::envelope::exclude_conditionals(&doc),
+        &self_url,
+        1,
+        None,
+    )))
 }
 
 /// `DELETE .../aisp/account-access-consents/{consentId}` - the TPP

@@ -121,10 +121,21 @@ pub fn wrap_response(
         }
         None => (None, None),
     };
+    // The conditional-link rule (OBL): an absent Next/Prev is EXCLUDED
+    // from the Links member (never null-rendered) - the same
+    // conditional exclusion the Data document gets.
+    let mut links = serde_json::Map::new();
+    links.insert("Self".into(), serde_json::json!(self_url));
+    if let Some(n) = next {
+        links.insert("Next".into(), serde_json::json!(n));
+    }
+    if let Some(p) = prev {
+        links.insert("Prev".into(), serde_json::json!(p));
+    }
     serde_json::json!({
         "Data": data,
         "Risk": {},
-        "Links": { "Self": self_url, "Next": next, "Prev": prev },
+        "Links": serde_json::Value::Object(links),
         "Meta": { "TotalPages": total_pages },
     })
 }
@@ -345,7 +356,9 @@ mod tests {
             Some((3, 3)),
         );
         assert_eq!(env["Links"]["Prev"], "https://bank.example/accounts?page=2");
-        assert!(env["Links"]["Next"].is_null());
+        // The conditional-link rule: an absent Next is EXCLUDED from
+        // Links (never null-rendered).
+        assert!(env["Links"].get("Next").is_none());
         // Page 2 of 3: both.
         let env = wrap_response(
             serde_json::json!([2]),

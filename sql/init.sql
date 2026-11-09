@@ -153,23 +153,49 @@ CREATE TABLE IF NOT EXISTS openfin8_uk.provider_profiles (
 );
 
 -- ── The producer tables (the platform contract: outbox + audit) ──────
+-- Generated from sentin8-outbox::outbox_table_sql("openfin8_uk") - the
+-- outbox lives in the service's OWN leaf schema, matching the relay's
+-- notify channel and the search_path-derived table name the SDK's
+-- insert_outbox_row targets.
 CREATE TABLE IF NOT EXISTS openfin8_uk.outbox (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     env_id          UUID NOT NULL,
     event_type      TEXT NOT NULL,
-    payload         JSONB NOT NULL DEFAULT '{}',
-    idempotency_key TEXT,
-    stream_family   TEXT NOT NULL DEFAULT 'openfin8-uk',
-    publisher_service TEXT NOT NULL DEFAULT 'openfin8:uk',
-    relayed         BOOLEAN NOT NULL DEFAULT FALSE,
-    relay_attempts  INTEGER NOT NULL DEFAULT 0,
+    stream_family   TEXT NOT NULL,
+    payload         JSONB NOT NULL,
+    publisher_id_token  TEXT,
+    publisher_subject   TEXT,
+    relayed         BOOLEAN NOT NULL DEFAULT false,
+    relayed_at      TIMESTAMPTZ,
+    relay_attempts  INT NOT NULL DEFAULT 0,
     next_retry_at   TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-
 CREATE INDEX IF NOT EXISTS idx_openfin8_uk_outbox_unrelayed
-    ON openfin8_uk.outbox (relayed, next_retry_at)
-    WHERE NOT relayed;
+    ON openfin8_uk.outbox (created_at) WHERE relayed = false;
+ALTER TABLE openfin8_uk.outbox ENABLE ROW LEVEL SECURITY;
+ALTER TABLE openfin8_uk.outbox FORCE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS outbox_select ON openfin8_uk.outbox;
+CREATE POLICY outbox_select ON openfin8_uk.outbox FOR SELECT
+    USING (sentin8_context_initialized() AND env_id = sentin8_current_env_id());
+DROP POLICY IF EXISTS outbox_insert ON openfin8_uk.outbox;
+CREATE POLICY outbox_insert ON openfin8_uk.outbox FOR INSERT
+    WITH CHECK (sentin8_context_initialized() AND env_id = sentin8_current_env_id());
+DROP POLICY IF EXISTS outbox_update ON openfin8_uk.outbox;
+CREATE POLICY outbox_update ON openfin8_uk.outbox FOR UPDATE
+    USING (sentin8_context_initialized() AND env_id = sentin8_current_env_id());
+CREATE OR REPLACE FUNCTION openfin8_uk.openfin8_uk_notify_outbox() RETURNS TRIGGER
+LANGUAGE plpgsql AS $fn$
+BEGIN
+    PERFORM pg_notify('openfin8_uk_outbox_changed', '');
+    RETURN NEW;
+END;
+$fn$;
+DROP TRIGGER IF EXISTS openfin8_uk_outbox_notify_trigger ON openfin8_uk.outbox;
+CREATE TRIGGER openfin8_uk_outbox_notify_trigger
+    AFTER INSERT ON openfin8_uk.outbox
+    FOR EACH ROW
+    EXECUTE FUNCTION openfin8_uk.openfin8_uk_notify_outbox();
 
 CREATE TABLE IF NOT EXISTS openfin8_uk.audit_journal (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
