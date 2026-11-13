@@ -3024,8 +3024,8 @@ checksum = "c08d65885ee38876c4f86fa503fb49d7b507c2b62552df7c70b2fce627e06381"
 
 [[package]]
 name = "openfin8-core"
-version = "0.1.0"
-source = "git+https://github.com/OpenFin8/openfin8-core?tag=core-sdk-v0.1.14#24a68d10b889334b90ecfb2dfd363d01f63f8e0d"
+version = "1.0.0"
+source = "git+https://github.com/OpenFin8/openfin8-core?tag=core-sdk-v1.0.0#c3376b2c552156851148ee1e8717ac964ba17855"
 dependencies = [
  "anyhow",
  "async-trait",
