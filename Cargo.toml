@@ -53,4 +53,4 @@ jsonwebtoken = "9"
 utoipa = { version = "5", features = ["chrono", "uuid", "decimal"] }
 sha2 = "0.10"
 rust_decimal = { version = "1", features = ["serde"] }
-sentin8-secrets-sdk = { git = "https://github.com/Sentin8/sentin8-secrets", tag = "secrets-sdk-v0.4.0" }
+sentin8-secrets-sdk = { git = "https://github.com/Sentin8/sentin8-secrets", tag = "secrets-sdk-v1.0.0" }
