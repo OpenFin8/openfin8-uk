@@ -6,7 +6,8 @@
       "telemetry_property": {
         "slug": "openfin8-uk",
         "name": "OpenFin8:UK Telemetry"
-      }
+      },
+      "exposure": "internal"
     }
   ]
 }
